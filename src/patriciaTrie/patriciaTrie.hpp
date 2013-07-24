@@ -7,31 +7,32 @@
 # include <cctype>
 
 struct node {
-  t_node* sons[36] = {nullptr};
-  int index;
-  int freq;
-  short length;
-  char c;
+    node* sons[36] = {nullptr};
+    int index;
+    int freq;
+    short length;
+    char c;
 
-  node(int index, int freq, int length, char c);
+    node(int index, int freq, int length, char c);
 };
 
 class PatriciaTrie
 {
-private:
-  node* root = nullptr;
-  std::string filename;
-  std::vector<char> suffixes;
+    private:
+        node* root = nullptr;
+        std::string filename;
+        std::vector<char> suffixes;
 
-private:
-  int add(std::string word, int freq, node* t);
+    private:
+        int add(std::string word, int freq, node* n);
+        int burstDown(int index, int freq, node* n);
 
-public:
-  PatriciaTrie(std::string f);
-  ~PatriciaTrie();
+    public:
+        PatriciaTrie(std::string f);
+        ~PatriciaTrie();
 
-public:
-  int compile(void);
+    public:
+        int compile(void);
 };
 
 #endif
