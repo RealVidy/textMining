@@ -1,4 +1,4 @@
-# include <PatriciaTrie.hpp>
+# include <patriciaTrie.hpp>
 
 PatriciaTrie::PatriciaTrie(std::string f) : filename (f)
 {
