@@ -14,7 +14,7 @@ doc:
 	doxygen doxygen/Doxyfile
 
 check:
-	./$(COMPILE_BIN)
+	@./$(COMPILE_BIN)
 
 
 .PHONY: test

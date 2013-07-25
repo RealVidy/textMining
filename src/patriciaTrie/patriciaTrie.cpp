@@ -9,7 +9,7 @@ PatriciaTrie::~PatriciaTrie()
 {
 }
 
-Node::Node(int index, int freq, int length, char c)
+Node::Node(int index, int freq, int length, char c): nbSons(0)
 {
     this->index = index;
     this->freq = freq;
@@ -17,8 +17,50 @@ Node::Node(int index, int freq, int length, char c)
     this->c = c;
 }
 
-Node::Node(void): index(0), freq(0), length(0), c(0)
+Node::Node(void): index(0), freq(0), length(0), c(0), nbSons(0)
 {
+}
+
+void Node::print(void)
+{
+    std::cout << "index " << index << " freq " << freq << " length " << length << " c " << c << std::endl;
+}
+
+int Node::addNbSons(int n)
+{
+    if (this->nbSons + n < 0)
+    {
+        std::cerr << "Error while incrementing number of sons" << std::endl;
+        return -1;
+    }
+
+    this->nbSons += n;
+
+    return 0;
+}
+
+void PatriciaTrie::browse(std::string word, Node* n)
+{
+    word += n->c;
+    if (n->nbSons == 0)
+        std::cout << "Word: " << word << " Freq: " << n->freq << std::endl;
+    else
+    {
+        for (size_t i = n->index; i < n->length; ++i)
+            word += this->suffixes[i];
+
+        for (size_t i = 0; i < 36; ++i)
+            if (n->sons[i] != nullptr)
+                browse(word, n->sons[i]);
+    }
+}
+
+void PatriciaTrie::print(void)
+{
+    std::string word("");
+    for (size_t i = 0; i < 36; ++i)
+        if (this->root->sons[i] != nullptr)
+            browse(word, this->root->sons[i]);
 }
 
 Node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, Node* n)
@@ -26,7 +68,7 @@ Node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, Node*
     size_t pos = -1;
     char c = this->suffixes[index + i];
     Node* newNode = nullptr;
-    
+
     newNode = new Node(index, freq, i, this->suffixes[index]);
 
     n->length -= i + 1;
@@ -36,8 +78,10 @@ Node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, Node*
         pos = c - 'a';
     else
         pos = c - '0';
-    
+
     newNode->sons[pos] = n;
+    if (newNode->addNbSons(1))
+        return nullptr;
 
     return newNode;
 }
@@ -54,7 +98,7 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
     else
     {
         std::cerr << "Error: Character \"" << word[0] << "\" not handled." << std::endl;
-        
+
         return -1;
     }
 
@@ -68,7 +112,7 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
         while (i < n->length && (i + 1) < word.length() &&
                 suffixes[n->index + i] == word[i + 1])
             ++i;
-        
+
         if (i == word.length()) // word is fully registered
         {
             // "Tester" was there and we add "test". Now the node is "test" and
@@ -79,7 +123,7 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
                 // Just updating is needed.
                 Node* tmp;
                 if ((tmp = burstDown(n->index, i, freq, n)) != nullptr)
-                n = tmp;             
+                    t->sons[pos] = tmp;             
             }
             // Else it is a duplicate, do nothing.
         }
@@ -87,16 +131,25 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
         {
             // "Test" was there and we add "tester". Now the node is stil "test" and
             // node below is "er" (not contiguous in memory).
-            add(word.substr(i + 1, n->length - (i + 1)), freq, n);
+            add(word.substr(i + 1, n->length - i), freq, n);
         }
     }
     else // We create a leaf.
     {
-        n = new Node(suffixes.size(), freq, word.length() - 1,
+        t->sons[pos] = new Node(suffixes.size(), freq, word.length() - 1,
                 word[0]);
-        
+
+        if (t->addNbSons(1))
+            return -1;
+        // t->sons[pos]->print();
+
+        //std::cout << word << std::endl;
         for (std::string::const_iterator it = word.begin() + 1; it != word.end(); ++it)
+        {
+            //std::cout << *it;
             suffixes.push_back(*it);
+        }
+        //std::cout << std::endl;
     }
 
     return 0;
@@ -120,7 +173,7 @@ int PatriciaTrie::compile(void)
             // Get word and frequency for this line
             ss >> word >> freq;
             //std::cout << word << std::endl;
-            
+
             std::transform(word.begin(), word.end(), word.begin(), ::tolower);
             add(word, freq, this->root);
         }
