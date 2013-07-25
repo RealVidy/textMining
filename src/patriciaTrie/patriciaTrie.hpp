@@ -9,26 +9,27 @@
 # include <algorithm>
 # include <string>
 
-struct node {
-    node* sons[36] = {nullptr};
+struct Node {
+    Node* sons[36] = {nullptr};
     size_t index;
     unsigned short freq;
     unsigned short length;
     char c;
 
-    node(int index, int freq, int length, char c);
+    Node(int index, int freq, int length, char c);
+    Node(void);
 };
 
 class PatriciaTrie
 {
     private:
-        node* root = nullptr;
+        Node* root = nullptr;
         std::string filename;
         std::vector<char> suffixes;
 
     private:
-        int add(std::string word, int freq, node* n);
-        node* burstDown(size_t index, size_t i, unsigned short freq, node* n);
+        int add(std::string word, int freq, Node* n);
+        Node* burstDown(size_t index, size_t i, unsigned short freq, Node* n);
 
     public:
         PatriciaTrie(std::string f);

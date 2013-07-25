@@ -2,13 +2,14 @@
 
 PatriciaTrie::PatriciaTrie(std::string f) : filename (f)
 {
+    root = new Node();
 }
 
 PatriciaTrie::~PatriciaTrie()
 {
 }
 
-node::node(int index, int freq, int length, char c)
+Node::Node(int index, int freq, int length, char c)
 {
     this->index = index;
     this->freq = freq;
@@ -16,13 +17,17 @@ node::node(int index, int freq, int length, char c)
     this->c = c;
 }
 
-node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, node* n)
+Node::Node(void): index(0), freq(0), length(0), c(0)
+{
+}
+
+Node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, Node* n)
 {
     size_t pos = -1;
     char c = this->suffixes[index + i];
-    node* newNode = nullptr;
+    Node* newNode = nullptr;
     
-    newNode = new node(index, freq, i, this->suffixes[index]);
+    newNode = new Node(index, freq, i, this->suffixes[index]);
 
     n->length -= i + 1;
     n->c = c;
@@ -37,10 +42,10 @@ node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, node*
     return newNode;
 }
 
-int PatriciaTrie::add(std::string word, int freq, node* t)
+int PatriciaTrie::add(std::string word, int freq, Node* t)
 {
     size_t pos = -1;
-    node* n;
+    Node* n;
 
     if (isalpha(word[0]))
         pos = word[0] - 'a';
@@ -72,7 +77,7 @@ int PatriciaTrie::add(std::string word, int freq, node* t)
             {
                 // TODO burstdown, we don't add anything, date already exists.
                 // Just updating is needed.
-                node* tmp;
+                Node* tmp;
                 if ((tmp = burstDown(n->index, i, freq, n)) != nullptr)
                 n = tmp;             
             }
@@ -87,7 +92,7 @@ int PatriciaTrie::add(std::string word, int freq, node* t)
     }
     else // We create a leaf.
     {
-        n = new node(suffixes.size(), freq, word.length() - 1,
+        n = new Node(suffixes.size(), freq, word.length() - 1,
                 word[0]);
         
         for (std::string::const_iterator it = word.begin() + 1; it != word.end(); ++it)
@@ -112,8 +117,10 @@ int PatriciaTrie::compile(void)
             int freq;
             std::istringstream ss(line);
 
+            // Get word and frequency for this line
             ss >> word >> freq;
-            std::cout << word << std::endl;
+            //std::cout << word << std::endl;
+            
             std::transform(word.begin(), word.end(), word.begin(), ::tolower);
             add(word, freq, this->root);
         }

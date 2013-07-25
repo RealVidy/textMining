@@ -2,7 +2,7 @@
 
 int main(int, char**)
 {
-    PatriciaTrie* p = new PatriciaTrie("words.txt");
+    PatriciaTrie* p = new PatriciaTrie("wTest.txt");
 
     p->compile();
 
