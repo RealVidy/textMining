@@ -4,13 +4,16 @@
 # include <vector>
 # include <iostream>
 # include <fstream>
+# include <sstream>
 # include <cctype>
+# include <algorithm>
+# include <string>
 
 struct node {
     node* sons[36] = {nullptr};
-    int index;
-    int freq;
-    short length;
+    size_t index;
+    unsigned short freq;
+    unsigned short length;
     char c;
 
     node(int index, int freq, int length, char c);
@@ -25,7 +28,7 @@ class PatriciaTrie
 
     private:
         int add(std::string word, int freq, node* n);
-        int burstDown(int index, int freq, node* n);
+        node* burstDown(size_t index, size_t i, unsigned short freq, node* n);
 
     public:
         PatriciaTrie(std::string f);
