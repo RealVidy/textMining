@@ -4,7 +4,7 @@ all:
 	@make -C build -j8
 
 clean:
-	@rm $(COMPILE_BIN)
+	@rm -f $(COMPILE_BIN)
 
 distclean: clean
 	@rm -rf doc

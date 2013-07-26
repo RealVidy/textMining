@@ -42,13 +42,14 @@ int Node::addNbSons(int n)
 void PatriciaTrie::browse(std::string word, Node* n)
 {
     word += n->c;
+   
+    for (size_t i = n->index; i < n->length + n->index; ++i)
+        word += this->suffixes[i];
+
     if (n->nbSons == 0)
         std::cout << "Word: " << word << " Freq: " << n->freq << std::endl;
     else
     {
-        for (size_t i = n->index; i < n->length; ++i)
-            word += this->suffixes[i];
-
         for (size_t i = 0; i < 36; ++i)
             if (n->sons[i] != nullptr)
                 browse(word, n->sons[i]);
@@ -113,14 +114,12 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
                 suffixes[n->index + i] == word[i + 1])
             ++i;
 
-        if (i == word.length()) // word is fully registered
+        if (i + 2 == word.length()) // word is fully registered
         {
             // "Tester" was there and we add "test". Now the node is "test" and
             // node below is "er" contiguous in suffixes.
-            if (i < n->length) // burst Down (it is not that easy, recursive burst possible)
+            if (i < n->length) // burst Down
             {
-                // TODO burstdown, we don't add anything, date already exists.
-                // Just updating is needed.
                 Node* tmp;
                 if ((tmp = burstDown(n->index, i, freq, n)) != nullptr)
                     t->sons[pos] = tmp;             
