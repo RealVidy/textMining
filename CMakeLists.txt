@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 project(SPELL_CHECK)
 #SET(CMAKE_CXX_COMPILER "clang++")
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -Werror -pedantic -pedantic-errors -g")
+set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -Werror -pedantic -pedantic-errors -O2")
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ..)
 

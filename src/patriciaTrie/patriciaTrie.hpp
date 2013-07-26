@@ -8,21 +8,24 @@
 # include <cctype>
 # include <algorithm>
 # include <string>
+# include <unordered_map>
 
 struct Node
 {
-    Node* sons[36] = {nullptr};
+    typedef std::unordered_map<char, Node*> nodeMap;
+
+    nodeMap sons;
     size_t index;
-    unsigned short freq;
+    size_t freq;
     unsigned short length;
     char c;
-    short nbSons;
+    bool isWord;
 
-    int addNbSons(int n);
     void print(void);
-    Node(int index, int freq, int length, char c);
+    Node(size_t index, size_t freq, unsigned short length, char c);
     Node(void);
 };
+
 
 class PatriciaTrie
 {
@@ -33,7 +36,7 @@ class PatriciaTrie
 
     private:
         int add(std::string word, int freq, Node* n);
-        Node* burstDown(size_t index, size_t i, unsigned short freq, Node* n);
+        Node* burstDown(size_t index, size_t i, size_t freq, Node* n);
         void browse(std::string word, Node* n);
 
     public:

@@ -9,7 +9,7 @@ PatriciaTrie::~PatriciaTrie()
 {
 }
 
-Node::Node(int index, int freq, int length, char c): nbSons(0)
+Node::Node(size_t index, size_t freq, unsigned short length, char c): isWord(false)
 {
     this->index = index;
     this->freq = freq;
@@ -17,7 +17,7 @@ Node::Node(int index, int freq, int length, char c): nbSons(0)
     this->c = c;
 }
 
-Node::Node(void): index(0), freq(0), length(0), c(0), nbSons(0)
+Node::Node(void): index(0), freq(0), length(0), c(0), isWord(false)
 {
 }
 
@@ -26,47 +26,31 @@ void Node::print(void)
     std::cout << "index " << index << " freq " << freq << " length " << length << " c " << c << std::endl;
 }
 
-int Node::addNbSons(int n)
-{
-    if (this->nbSons + n < 0)
-    {
-        std::cerr << "Error while incrementing number of sons" << std::endl;
-        return -1;
-    }
-
-    this->nbSons += n;
-
-    return 0;
-}
-
 void PatriciaTrie::browse(std::string word, Node* n)
 {
     word += n->c;
-   
     for (size_t i = n->index; i < n->length + n->index; ++i)
         word += this->suffixes[i];
 
-    if (n->nbSons == 0)
-        std::cout << "Word: " << word << " Freq: " << n->freq << std::endl;
-    else
-    {
-        for (size_t i = 0; i < 36; ++i)
-            if (n->sons[i] != nullptr)
-                browse(word, n->sons[i]);
-    }
+    if (n->isWord)
+        std::cout << word << " " << n->freq << std::endl;
+
+    for (Node::nodeMap::iterator it = n->sons.begin(); it != n->sons.end(); ++it)
+        browse(word, it->second);
 }
 
 void PatriciaTrie::print(void)
 {
     std::string word("");
-    for (size_t i = 0; i < 36; ++i)
-        if (this->root->sons[i] != nullptr)
-            browse(word, this->root->sons[i]);
+
+    for (Node::nodeMap::iterator it = this->root->sons.begin();
+            it != this->root->sons.end();
+            ++it)
+        browse(word, it->second);
 }
 
-Node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, Node* n)
+Node* PatriciaTrie::burstDown(size_t index, size_t i, size_t freq, Node* n)
 {
-    size_t pos = -1;
     char c = this->suffixes[index + i];
     Node* newNode = nullptr;
 
@@ -76,36 +60,19 @@ Node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, Node*
     n->c = c;
     n->index = index + i + 1;
 
-    if (isalpha(c))
-        pos = c - 'a';
-    else
-        pos = c - '0';
-
-    newNode->sons[pos] = n;
-    if (newNode->addNbSons(1))
-        return nullptr;
+    newNode->sons[c] = n;
 
     return newNode;
 }
 
 int PatriciaTrie::add(std::string word, int freq, Node* t)
 {
-    size_t pos = -1;
-    Node* n;
+    Node* n = nullptr;
+    char firstC = word[0];
 
-    if (isalpha(word[0]))
-        pos = word[0] - 'a';
-    else if (isdigit(word[0]))
-        pos = word[0] - '0';
-    else
-    {
-        std::cerr << "Error: Character \"" << word[0] << "\" not handled." << std::endl;
-
-        return -1;
-    }
-
-    // Current examined node.
-    n = t->sons[pos];
+    Node::nodeMap::iterator it = t->sons.find(firstC);
+    if (it != t->sons.end())
+        n = it->second;
 
     if (n != nullptr) // If prefix letter exists
     {
@@ -120,7 +87,7 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
             // "Test" was there and we add "tester". Now the node is stil "test" and
             // node below is "er" (not contiguous in memory).
             std::string leftOver = word.substr(i + 1, word.length() - i - 1);
-            
+
             if (leftOver.length() > 0) // Else we had a duplicate.
                 add(leftOver, freq, n);
         }
@@ -130,22 +97,21 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
             // node below is "er" contiguous in suffixes.
             Node* tmp;
             if ((tmp = burstDown(n->index, i, freq, n)) != nullptr)
-                t->sons[pos] = tmp;
-            
+                t->sons[firstC] = tmp;
+
             std::string leftOver = word.substr(i + 1, word.length() - i - 1);
-            
+
             if (leftOver.length() > 0) // Else we had a duplicate.
                 add(leftOver, freq, tmp);
         }
     }
     else // We create a leaf.
     {
-        t->sons[pos] = new Node(suffixes.size(), freq, word.length() - 1,
-                word[0]);
+        t->sons[firstC] = new Node(suffixes.size(), freq, word.length() - 1,
+                firstC);
+        t->sons[firstC]->isWord = true;
 
-        if (t->addNbSons(1))
-            return -1;
-        // t->sons[pos]->print();
+        // t->sons[firstC]->print();
 
         //std::cout << word << std::endl;
         for (std::string::const_iterator it = word.begin() + 1; it != word.end(); ++it)
