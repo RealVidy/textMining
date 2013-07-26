@@ -70,10 +70,11 @@ Node* PatriciaTrie::burstDown(size_t index, size_t i, unsigned short freq, Node*
     char c = this->suffixes[index + i];
     Node* newNode = nullptr;
 
-    newNode = new Node(index, freq, i, this->suffixes[index]);
+    newNode = new Node(index, freq, i, n->c);
 
     n->length -= i + 1;
     n->c = c;
+    n->index = index + i + 1;
 
     if (isalpha(c))
         pos = c - 'a';
@@ -114,23 +115,27 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
                 suffixes[n->index + i] == word[i + 1])
             ++i;
 
-        if (i + 2 == word.length()) // word is fully registered
-        {
-            // "Tester" was there and we add "test". Now the node is "test" and
-            // node below is "er" contiguous in suffixes.
-            if (i < n->length) // burst Down
-            {
-                Node* tmp;
-                if ((tmp = burstDown(n->index, i, freq, n)) != nullptr)
-                    t->sons[pos] = tmp;             
-            }
-            // Else it is a duplicate, do nothing.
-        }
-        else
+        if (i == n->length) // They share the same prefix
         {
             // "Test" was there and we add "tester". Now the node is stil "test" and
             // node below is "er" (not contiguous in memory).
-            add(word.substr(i + 1, n->length - i), freq, n);
+            std::string leftOver = word.substr(i + 1, word.length() - i - 1);
+            
+            if (leftOver.length() > 0) // Else we had a duplicate.
+                add(leftOver, freq, n);
+        }
+        else
+        {
+            // "Tester" was there and we add "test". Now the node is "test" and
+            // node below is "er" contiguous in suffixes.
+            Node* tmp;
+            if ((tmp = burstDown(n->index, i, freq, n)) != nullptr)
+                t->sons[pos] = tmp;
+            
+            std::string leftOver = word.substr(i + 1, word.length() - i - 1);
+            
+            if (leftOver.length() > 0) // Else we had a duplicate.
+                add(leftOver, freq, tmp);
         }
     }
     else // We create a leaf.
