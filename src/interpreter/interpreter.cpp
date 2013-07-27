@@ -16,7 +16,7 @@ void Interpreter::browse(Node* n, std::string curWord, unsigned short curIndex, 
             ++it)
     {
         std::string suf("");
-        size_t i = 0;
+        int i = 0;
         int res = distance(it->second, curIndex, curDist, suf, i);
 
         if (res < 0)
@@ -40,7 +40,7 @@ stringVec Interpreter::getResults(void)
     return this->results;
 }
 
-int Interpreter::distance(Node* n, unsigned short curIndex, unsigned short curDist, std::string& suf, size_t& i)
+int Interpreter::distance(Node* n, unsigned short curIndex, unsigned short curDist, std::string& suf, int& i)
 {
     int dist = 0;
     char c;

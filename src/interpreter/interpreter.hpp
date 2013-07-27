@@ -14,7 +14,7 @@ class Interpreter
     private:
 
     void browse(Node* n, std::string curWord, unsigned short curIndex, unsigned short curDist);
-    int distance(Node* n, unsigned short curIndex, unsigned short curDist, std::string& suf, size_t& i);
+    int distance(Node* n, unsigned short curIndex, unsigned short curDist, std::string& suf, int& i);
     int maxDist;
     std::string word;
     stringVec results;
