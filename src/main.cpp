@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     PatriciaTrie* p = new PatriciaTrie(file);
 
     p->compile();
-    p->print();
+    //p->print();
 
     return 0;
 }
