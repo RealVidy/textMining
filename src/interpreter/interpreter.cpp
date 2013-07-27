@@ -1,53 +1,66 @@
 #include "interpreter.hpp"
 
-Interpreter::Interpreter(int distance, std::string word):
+Interpreter::Interpreter(int distance, std::string word, std::string file):
     maxDist(distance), word(word)
 {
     std::ifstream istream(file);
     boost::archive::binary_iarchive iar(istream);
 
     iar >> this->p;
+}
 
-    this->p->print();
+void Interpreter::browse(Node* n, std::string curWord, unsigned short curIndex, unsigned short curDist)
+{
+    for (Node::nodeMap::iterator it = n->sons.begin();
+            it != n->sons.end();
+            ++it)
+    {
+        std::string suf("");
+        size_t i = 0;
+        int res = distance(it->second, curIndex, curDist, suf, i);
+
+        if (res < 0)
+            continue;
+        if (it->second->isWord && res + word.length() - i - 1 <= maxDist)
+            std::cout << curWord + suf << std::endl;
+
+        // Then dist in children
+    }
+
 }
 
 stringVec Interpreter::getResults(void)
 {
-    std::string currentWord("");
+    std::string curWord("");
     unsigned short curIndex = 0;
     unsigned short curDist = 0;
 
-    for (Node::nodeMap::iterator it = p->root->sons.begin();
-            it != p->root->sons.end();
-            ++it)
-    {
-        std::cout << distance(it->second, curIndex, curDist) << std::endl;
-    }
+    browse(this->p->root, curWord, curIndex, curDist);
 
     return this->results;
 }
 
-int Interpreter::distance(Node* n, unsigned short curIndex, unsigned short curDist)
+int Interpreter::distance(Node* n, unsigned short curIndex, unsigned short curDist, std::string& suf, size_t& i)
 {
     int dist = 0;
-    size_t i = 0;
+    char c;
 
     if (n->c != this->word[curIndex])
         ++dist;
         
+    suf += n->c;
     for (; (i < n->length) && (curIndex + i < this->word.length()) &&
-            (curDist + dist < this->maxDist); ++i)
+            (curDist + dist < maxDist); ++i)
     {
-        if (p->suffixes[n->index + i] != this->word[curIndex + i])
+        c = p->suffixes[n->index + i];
+        if (c != this->word[curIndex + i + 1])
             ++dist;
+        suf += c;
     }
 
-    return (dist + this->word.length() - i)
+    if (curDist + dist > maxDist)
+        return -1;
+
+    return dist;
 }
 
-/*
-void Interpreter::browse(stringVec& r, Node* n, std::string curW, unsigned short curDist, unsigned short curIndex)
-{
-
-}
-*/

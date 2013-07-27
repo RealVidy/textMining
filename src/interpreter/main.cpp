@@ -14,16 +14,9 @@ int main(int argc, char** argv)
 
     std::cin >> drop >> distance >> word;
 
-    std::cout << distance << " " << word << std::endl;
+    Interpreter* inter = new Interpreter(distance, word, file);
 
-    PatriciaTrie* p;
+    inter->getResults();
 
-    std::ifstream istream(file);
-    boost::archive::binary_iarchive iar(istream);
-
-    iar >> p;
-
-    p->print();
-
-    delete p;
+    delete inter;
 }

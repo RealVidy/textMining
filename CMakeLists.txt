@@ -44,3 +44,4 @@ endif()
 
 add_custom_target(clean COMMAND rm -rf *~)
 add_custom_target(distclean COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake)
+
