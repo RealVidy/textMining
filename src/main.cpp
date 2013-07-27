@@ -9,10 +9,17 @@ int main(int argc, char** argv)
     else
         file = std::string("wTest.txt");
 
-    PatriciaTrie* p = new PatriciaTrie(file);
+    PatriciaTrie *p = new PatriciaTrie(file);
 
     p->compile();
-    //p->print();
+
+    std::ofstream ostream("dico.bin");
+    boost::archive::binary_oarchive oar(ostream);
+
+    oar << p;
+    
+    delete(p);
+    ostream.close();
 
     return 0;
 }
