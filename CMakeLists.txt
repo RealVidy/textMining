@@ -6,7 +6,7 @@ set(CMAKE_CXX "g++")
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic -pedantic-errors -march=native")
 
 set(Compiler_SOURCES
-  src/main.cpp
+  src/patriciaTrie/main.cpp
   src/patriciaTrie/patriciaTrie.cpp
   )
 

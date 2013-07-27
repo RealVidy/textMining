@@ -49,9 +49,7 @@ struct Node
 class PatriciaTrie
 {
    private:
-        Node* root = nullptr;
         std::string filename;
-        std::vector<char> suffixes;
 
     private:
         int add(std::string word, int freq, Node* n);
@@ -75,6 +73,8 @@ private:
     public:
     int compile(void);
     void print(void);
+    Node* root = nullptr;
+    std::vector<char> suffixes;
 };
 
 #endif
