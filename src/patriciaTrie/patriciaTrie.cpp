@@ -5,6 +5,11 @@ PatriciaTrie::PatriciaTrie(std::string f) : filename (f)
     root = new Node();
 }
 
+PatriciaTrie::PatriciaTrie(void) : filename ("")
+{
+    root = nullptr;
+}
+
 PatriciaTrie::~PatriciaTrie()
 {
     delete(root);

@@ -10,8 +10,6 @@
 # include <string>
 # include <map>
 
-# include <boost/archive/text_oarchive.hpp>
-# include <boost/archive/text_iarchive.hpp>
 # include <boost/archive/binary_oarchive.hpp>
 # include <boost/archive/binary_iarchive.hpp>
 
@@ -71,7 +69,8 @@ private:
 
     public:
     PatriciaTrie(std::string f);
-    ~PatriciaTrie();
+    PatriciaTrie(void);
+    ~PatriciaTrie(void);
 
     public:
     int compile(void);
