@@ -8,11 +8,19 @@
 # include <cctype>
 # include <algorithm>
 # include <string>
-# include <unordered_map>
+# include <map>
+
+# include <boost/archive/text_oarchive.hpp>
+# include <boost/archive/text_iarchive.hpp>
+# include <boost/archive/binary_oarchive.hpp>
+# include <boost/archive/binary_iarchive.hpp>
+
+# include <boost/serialization/map.hpp>
+# include <boost/serialization/vector.hpp>
 
 struct Node
 {
-    typedef std::unordered_map<char, Node*> nodeMap;
+    typedef std::map<char, Node*> nodeMap;
 
     nodeMap sons;
     size_t index;
@@ -21,15 +29,28 @@ struct Node
     char c;
     bool isWord;
 
+    friend class boost::serialization::access;
+    template <class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+	ar & sons;
+	ar & index;
+	ar & freq;
+	ar & length;
+	ar & c;
+	ar & isWord;
+    }
+
     void print(void);
     Node(size_t index, size_t freq, unsigned short length, char c);
     Node(void);
+    ~Node(void);
 };
 
 
 class PatriciaTrie
 {
-    private:
+   private:
         Node* root = nullptr;
         std::string filename;
         std::vector<char> suffixes;
@@ -39,13 +60,22 @@ class PatriciaTrie
         Node* burstDown(size_t index, size_t i, size_t freq, Node* n);
         void browse(std::string word, Node* n);
 
-    public:
-        PatriciaTrie(std::string f);
-        ~PatriciaTrie();
+private:
+    friend class boost::serialization::access;
+    template <class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+	ar & suffixes;
+	ar & root;
+    }
 
     public:
-        int compile(void);
-        void print(void);
+    PatriciaTrie(std::string f);
+    ~PatriciaTrie();
+
+    public:
+    int compile(void);
+    void print(void);
 };
 
 #endif

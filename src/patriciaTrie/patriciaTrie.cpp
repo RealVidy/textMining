@@ -7,6 +7,7 @@ PatriciaTrie::PatriciaTrie(std::string f) : filename (f)
 
 PatriciaTrie::~PatriciaTrie()
 {
+    delete(root);
 }
 
 Node::Node(size_t index, size_t freq, unsigned short length, char c): isWord(false)
@@ -19,6 +20,12 @@ Node::Node(size_t index, size_t freq, unsigned short length, char c): isWord(fal
 
 Node::Node(void): index(0), freq(0), length(0), c(0), isWord(false)
 {
+}
+
+Node::~Node(void)
+{
+    for (std::pair<char, Node*> s : this->sons)
+	delete(s.second);
 }
 
 void Node::print(void)
