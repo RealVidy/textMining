@@ -12,11 +12,11 @@ int main(int argc, char** argv)
     else
         file = std::string("dico.bin");
 
-    std::cin >> drop >> distance >> word;
 
-    Interpreter* inter = new Interpreter(distance, word, file);
+    Interpreter* inter = new Interpreter(file);
 
-    inter->getResults();
+    while (std::cin >> drop >> distance >> word)
+        inter->getResults(distance, word);
 
     delete inter;
 }
