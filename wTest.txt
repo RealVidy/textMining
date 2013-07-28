@@ -3,7 +3,7 @@ coucou 10
 haha 1
 coup 5
 avec 8
-coudre 0
-couper 11
-halt 2
-comment 7
+coudre 1
+couper 8
+halt 50
+comment 51

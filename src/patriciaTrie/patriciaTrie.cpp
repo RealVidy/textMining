@@ -170,3 +170,122 @@ int PatriciaTrie::compile(void)
     }
     return 0;
 }
+
+/*
+int compress(FILE* source, FILE* dest, int level)
+{
+    int ret, flush;
+    unsigned have;
+    z_stream strm;
+    unsigned char in[CHUNK];
+    unsigned char out[CHUNK];
+
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    ret = deflateInit(&strm, level);
+    if (ret != Z_OK)
+	return ret;
+
+    do {
+	strm.avail_in = fread(in, 1, CHUNK, source);
+	if (ferror(source))
+	{
+	    (void) deflateEnd(&strm);
+	    return Z_ERRNO;
+	}
+	flush = feof(source) ? Z_FINISH : Z_NO_FLUSH;
+	strm.next_in = in;
+	do {
+	    strm.avail_out = CHUNK;
+	    strm.next_out = out;
+	    ret = deflate(&strm, flush);
+	    assert(ret != Z_STREAM_ERROR);
+	    have = CHUNK - strm.avail_out;
+	    if (fwrite(out, 1, have, dest) != have || ferror(dest))
+	    {
+		(void) deflateEnd(&strm);
+		return Z_ERRNO;
+	    }
+	} while (strm.avail_out == 0);
+	assert(strm.avail_in == 0);
+    } while (flush != Z_FINISH);
+    assert(ret == Z_STREAM_END);
+
+    (void) deflateEnd(&strm);
+    return Z_OK;
+}
+*/
+
+int nodeNum = 0;
+void PatriciaTrie::deepthFirstSearch(Node* n, int father)
+{
+    std::vector<int> tmp;
+
+    if (n != root)
+    {
+	for (int i = 0; i < new_trie[father].first.size(); i++)
+	    if (new_trie[father].first[i] == -1)
+	    {
+		new_trie[father].first[i] = nodeNum;
+		break;
+	    }
+    }
+
+    if (n->sons.size() == 0)
+	tmp.push_back(-2);
+    else
+	for (int i = 0; i < n->sons.size(); i++)
+	    tmp.push_back(-1);
+
+    new_trie.push_back(std::make_pair(tmp, nodeNum));
+    
+    father = nodeNum;
+    nodeNum++;
+
+    tmp.clear();
+    for (std::map<char, Node*>::iterator it = n->sons.begin();
+	 it != n->sons.end(); ++it)
+	deepthFirstSearch(it->second, father);
+
+}
+
+void PatriciaTrie::transformTrie()
+{
+    deepthFirstSearch(root, -1);
+
+    for (int i = 0; i < new_trie.size(); i++)
+    {
+	std::cout << "==> Node: " << new_trie[i].second << std::endl;
+	for (int j = 0; j < new_trie[i].first.size(); j++)
+	    std::cout << "> Son " << j  << " is at " << new_trie[i].first[j] << std::endl; 
+    }
+
+}
+
+void PatriciaTrie::createRawFile(std::string filename)
+{
+    std::ofstream file(filename);
+
+    // Header
+    file << suffixes.size();
+    file << 13; // Array suffixes offset
+    file << 12 + sizeof(char) * suffixes.size() + 1; // Patricia Trie Offset
+
+    for (std::vector<char>::iterator it = suffixes.begin(); it != suffixes.end(); ++it)
+	file << *it;
+
+    file.close();
+
+    transformTrie();
+
+/*
+    FILE* sources = fopen(filename.c_str(), "a+");
+    FILE* dest = fopen("test_commpressed", "a+");
+    
+    compress(sources, dest, 1);
+
+    fclose(sources);
+    fclose(dest);
+*/
+}

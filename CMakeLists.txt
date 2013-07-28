@@ -21,14 +21,19 @@ set(Interpreter_SOURCES
 
 find_package(Boost 1.5 COMPONENTS serialization REQUIRED)
 if (Boost_FOUND)
-  link_directories(${Boost_LIBRARY_DIRS})
-  include_directories(${Boost_INCLUDE_DIRS})
- 
-  add_executable(TextMiningApp ${Interpreter_SOURCES})
-  target_link_libraries(TextMiningApp ${Boost_LIBRARIES})
+  find_package(ZLIB REQUIRED)
+  if (ZLIB_FOUND)
+    link_directories(${Boost_LIBRARY_DIRS})
+    include_directories(${Boost_INCLUDE_DIRS})
+    link_directories(${ZLIB_INCLUDE_DIRS})
 
-  add_executable(interpreter ${Interpreter_SOURCES})
-  target_link_libraries(interpreter ${Boost_LIBRARIES})
+    add_executable(compilator ${Compiler_SOURCES})
+    target_link_libraries(compilator ${Boost_LIBRARIES})
+    target_link_libraries(compilator ${ZLIB})
+
+    add_executable(interpreter ${Interpreter_SOURCES})
+    target_link_libraries(interpreter ${Boost_LIBRARIES})
+  endif()
 endif()
 
 add_custom_target(distclean COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake interpreter TextMiningCompiler)
