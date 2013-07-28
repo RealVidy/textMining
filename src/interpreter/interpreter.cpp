@@ -58,9 +58,9 @@ int Interpreter::distance(Node* n, unsigned short curIndex, unsigned short curDi
         suf += c;
     }
 
-    if (curDist + dist + n->length - i - 1 > maxDist)
+    if (curDist + dist + n->length - i > maxDist)
         return -1;
 
-    return dist + n->length - i - 1;
+    return dist + n->length - i;
 }
 
