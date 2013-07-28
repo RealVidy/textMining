@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 project(SPELL_CHECK)
  
 set(CMAKE_CXX "g++")
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic -pedantic-errors -march=native")
+set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic -pedantic-errors -g")
 
 message(${CMAKE_BINARY_DIR})
 
@@ -25,9 +25,9 @@ if (Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
  
   add_executable(TextMiningCompiler ${Compiler_SOURCES})
-  add_executable(TextMiningApp ${Interpreter_SOURCES})
+  add_executable(interpreter ${Interpreter_SOURCES})
 
-  target_link_libraries(TextMiningApp ${Boost_LIBRARIES})
+  target_link_libraries(interpreter ${Boost_LIBRARIES})
   target_link_libraries(TextMiningCompiler ${Boost_LIBRARIES})
 endif()
 
@@ -39,5 +39,5 @@ add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxy
 endif()
 
 add_custom_target(clean COMMAND rm -rf *~)
-add_custom_target(distclean COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake TextMiningApp TextMiningCompiler)
+add_custom_target(distclean COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake interpreter TextMiningCompiler)
 
