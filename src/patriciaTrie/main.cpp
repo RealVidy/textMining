@@ -1,4 +1,4 @@
-#include "patriciaTrie/patriciaTrie.hpp"
+#include "patriciaTrie.hpp"
 
 int main(int argc, char** argv)
 {

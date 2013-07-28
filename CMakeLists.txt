@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
 project(SPELL_CHECK)
-
-set(CMAKE_SOURCE_DIR src)
-set(CMAKE_BINARY_DIR build)
-set(EXECUTABLE_OUTPUT_PATH .)
  
 set(CMAKE_CXX "g++")
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic -pedantic-errors -march=native")
@@ -43,5 +39,5 @@ add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxy
 endif()
 
 add_custom_target(clean COMMAND rm -rf *~)
-add_custom_target(distclean COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake)
+add_custom_target(distclean COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake TextMiningApp TextMiningCompiler)
 
