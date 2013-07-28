@@ -24,20 +24,12 @@ if (Boost_FOUND)
   link_directories(${Boost_LIBRARY_DIRS})
   include_directories(${Boost_INCLUDE_DIRS})
  
-  add_executable(TextMiningCompiler ${Compiler_SOURCES})
   add_executable(TextMiningApp ${Interpreter_SOURCES})
-
   target_link_libraries(TextMiningApp ${Boost_LIBRARIES})
+
+  add_executable(TextMiningCompiler ${Compiler_SOURCES})
   target_link_libraries(TextMiningCompiler ${Boost_LIBRARIES})
 endif()
 
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile @ONLY)
-add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
-  COMMENT "Generating API documentation with Doxygen" VERBATIM)
-endif()
-
-add_custom_target(clean COMMAND rm -rf *~)
 add_custom_target(distclean COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake TextMiningApp TextMiningCompiler)
 
