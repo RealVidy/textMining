@@ -24,7 +24,7 @@ void Interpreter::browse(Node* n, std::string curWord, unsigned short curIndex, 
         if (it->second->isWord && res + (int)word.length() - i - 1 <= maxDist)
             std::cout << curWord + suf << std::endl;
 
-        // Then dist in children
+        browse(it->second, curWord + suf, curIndex + i + 1, curDist + res);
     }
 
 }
@@ -50,7 +50,7 @@ int Interpreter::distance(Node* n, unsigned short curIndex, unsigned short curDi
         
     suf += n->c;
     for (; (i < (int)n->length) && (curIndex + i < (int)this->word.length()) &&
-            (curDist + dist < maxDist); ++i)
+            (curDist + dist <= maxDist); ++i)
     {
         c = p->suffixes[n->index + i];
         if (c != this->word[curIndex + i + 1])
@@ -58,9 +58,9 @@ int Interpreter::distance(Node* n, unsigned short curIndex, unsigned short curDi
         suf += c;
     }
 
-    if (curDist + dist > maxDist)
+    if (curDist + dist + n->length - i - 1 > maxDist)
         return -1;
 
-    return dist;
+    return dist + n->length - i - 1;
 }
 
