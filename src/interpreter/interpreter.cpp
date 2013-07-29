@@ -48,9 +48,9 @@ int minimum(int a, int b, int c)
     return MIN(a, MIN(b, c));
 }
 
-int Interpreter::distance(std::string curWord)
+int Interpreter::distance(std::string& truncWord, std::string& curWord)
 {
-    int lenStr1 = word.length();
+    int lenStr1 = truncWord.length();
     int lenStr2 = curWord.length();
     int i, j, cost;
 
@@ -69,17 +69,17 @@ int Interpreter::distance(std::string curWord)
     for (i = 1; i <= lenStr1; ++i)
         for (j = 1; j <= lenStr2; ++j)
         {
-            if (word[i - 1] == curWord[j - 1])
+            if (truncWord[i - 1] == curWord[j - 1])
                 cost = 0;
             else
                 cost = 1;
 
             d[i][j] = minimum(d[i-1][j] + 1, // deletion
-                              d[i][j-1] + 1,     // insertion
-                              d[i-1][j-1] + cost);   // substitution
+                    d[i][j-1] + 1,     // insertion
+                    d[i-1][j-1] + cost);   // substitution
 
-                if(i > 1 && j > 1 && word[i - 1] == curWord[j-2] && word[i-2] == curWord[j - 1])
-                    d[i][j] = MIN(d[i][j], d[i-2][j-2] + cost);  // transposition
+            if(i > 1 && j > 1 && truncWord[i - 1] == curWord[j-2] && truncWord[i-2] == curWord[j - 1])
+                d[i][j] = MIN(d[i][j], d[i-2][j-2] + cost);  // transposition
         }
 
     int result = d[lenStr1][lenStr2];
@@ -92,10 +92,10 @@ int Interpreter::distance(std::string curWord)
 
 void Interpreter::getWord(Node* n, std::string curWord)
 {
-/*
-    if (ABS((int)word.length() - (int)curWord.length()) > maxDist)
-        return;
-*/
+    /*
+       if (ABS((int)word.length() - (int)curWord.length()) > maxDist)
+       return;
+       */
     curWord += n->c;
 
     for (size_t i = 0; i < n->length; ++i)
@@ -103,9 +103,17 @@ void Interpreter::getWord(Node* n, std::string curWord)
 
     if (n->isWord)
     {
-        unsigned short myDist = distance(curWord);
+        unsigned short myDist = distance(word, curWord);
         if (myDist <= maxDist)
             insertionSort(curWord, myDist, n->freq);
+    }
+    if (word.length() > curWord.length())
+    {
+        // Prefix already too far?
+        std::string tmp = word.substr(0, curWord.length());
+        //std::cout << tmp << std::endl;
+        if (distance(tmp, curWord) > maxDist)
+            return;
     }
 
     for (Node::nodeMap::iterator it = n->sons.begin();
