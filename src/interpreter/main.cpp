@@ -1,4 +1,4 @@
-#include "interpreter.hpp"
+#include "../headers/interpreter.hpp"
 
 int main(int argc, char** argv)
 {
@@ -12,8 +12,10 @@ int main(int argc, char** argv)
     else
         file = std::string("dico.bin");
 
-
     Interpreter* inter = new Interpreter(file);
+
+//    inter->loadData(file);
+
 
     while (std::cin >> drop >> distance >> word)
         inter->getResults(distance, word);

@@ -1,34 +1,52 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(SPELL_CHECK)
+project(SPELL_CHECK) 
  
-set(CMAKE_CXX "g++")
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic -pedantic-errors -g")
+SET (CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -g -Wall -Werror -Wextra -pedantic")
+SET (CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O3 -march=native -Wall -Werror -Wextra -pedantic")
 
-message(${CMAKE_BINARY_DIR})
+set(Prg_compiler_name compilator)
+set(Prg_interpreter_name interpreter)
 
 set(Compiler_SOURCES
-  src/patriciaTrie/main.cpp
-  src/patriciaTrie/patriciaTrie.cpp
+  src/compilator/main.cpp
+  src/compilator/compilator.cpp
   )
 
 set(Interpreter_SOURCES
   src/interpreter/main.cpp
   src/interpreter/interpreter.cpp
-  src/patriciaTrie/patriciaTrie.cpp
+  src/compilator/compilator.cpp
   )
 
+add_executable(${Prg_compiler_name} ${Compiler_SOURCES})
+add_executable(${Prg_interpreter_name} ${Interpreter_SOURCES})
+
+if(NOT CMAKE_BUILD_TYPE)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set (CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
+endif()
 
 find_package(Boost 1.5 COMPONENTS serialization REQUIRED)
 if (Boost_FOUND)
-  link_directories(${Boost_LIBRARY_DIRS})
   include_directories(${Boost_INCLUDE_DIRS})
- 
-  add_executable(TextMiningApp ${Interpreter_SOURCES})
-  target_link_libraries(TextMiningApp ${Boost_LIBRARIES})
+  target_link_libraries(${Prg_interpreter_name} ${Boost_LIBRARIES}) 
+endif(Boost_FOUND)
 
-  add_executable(interpreter ${Interpreter_SOURCES})
-  target_link_libraries(interpreter ${Boost_LIBRARIES})
-endif()
+find_package(ZLIB REQUIRED)
+if (ZLIB_FOUND)
+  include_directories(${ZLIB_INCLUDE_DIRS})
+  target_link_libraries(${Prg_compiler_name} ${ZLIB_LIBRARIES})
+  target_link_libraries(${Prg_interpreter_name} ${ZLIB_LIBRARIES})
+endif(ZLIB_FOUND)
 
-add_custom_target(distclean COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake interpreter TextMiningCompiler)
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+  add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Generating API documentation with Doxygen" VERBATIM)
+endif(DOXYGEN_FOUND)
+
+add_custom_target(distclean COMMAND rm -rf ${Prg_compiler_name} ${Prg_interpreter_name} cmake_install.cmake CMakeCache.txt CMakeFiles)

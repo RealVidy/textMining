@@ -1,4 +1,4 @@
-#include "patriciaTrie.hpp"
+#include "../headers/patriciatrie.hpp"
 
 int main(int argc, char** argv)
 {
@@ -15,14 +15,9 @@ int main(int argc, char** argv)
     PatriciaTrie *p = new PatriciaTrie(file);
 
     p->compile();
+    p->createRawFile(out);
 
-    std::ofstream ostream(out);
-    boost::archive::binary_oarchive oar(ostream);
-
-    oar << p;
-    
     delete(p);
-    ostream.close();
 
     return 0;
 }

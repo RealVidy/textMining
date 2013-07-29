@@ -1,10 +1,6 @@
 #ifndef BLOOM_FILTER_HPP
 # define BLOOM_FILTER_HPP
 
-# include <string>
-# include <bitset> 
-# include <iostream>
-
 # define NBHASH (4)
 # define BITSET_SIZE (4000000)
 

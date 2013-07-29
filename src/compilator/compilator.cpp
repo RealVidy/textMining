@@ -1,4 +1,4 @@
-#include "patriciaTrie.hpp"
+#include "../headers/patriciatrie.hpp"
 
 PatriciaTrie::PatriciaTrie(std::string f) : filename (f)
 {
@@ -169,4 +169,180 @@ int PatriciaTrie::compile(void)
         return -1;
     }
     return 0;
+}
+
+
+int PatriciaTrie::compress(FILE* source, FILE* dest, int level)
+{
+    int ret, flush;
+    unsigned have;
+    z_stream strm;
+    unsigned char in[CHUNK];
+    unsigned char out[CHUNK];
+
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    ret = deflateInit(&strm, level);
+    if (ret != Z_OK)
+	return ret;
+
+    do {
+	strm.avail_in = fread(in, 1, CHUNK, source);
+	if (ferror(source))
+	{
+	    (void) deflateEnd(&strm);
+	    return Z_ERRNO;
+	}
+	flush = feof(source) ? Z_FINISH : Z_NO_FLUSH;
+	strm.next_in = in;
+	do {
+	    strm.avail_out = CHUNK;
+	    strm.next_out = out;
+	    ret = deflate(&strm, flush);
+	    assert(ret != Z_STREAM_ERROR);
+	    have = CHUNK - strm.avail_out;
+	    if (fwrite(out, 1, have, dest) != have || ferror(dest))
+	    {
+		(void) deflateEnd(&strm);
+		return Z_ERRNO;
+	    }
+	} while (strm.avail_out == 0);
+	assert(strm.avail_in == 0);
+    } while (flush != Z_FINISH);
+    assert(ret == Z_STREAM_END);
+
+    (void) deflateEnd(&strm);
+    return Z_OK;
+}
+
+
+int nodeNum = 0;
+void PatriciaTrie::deepthFirstSearch(Node* n, int father)
+{
+    std::vector<int> tmp;
+
+    if (n != root)
+    {
+	for (size_t i = 0; i < new_trie[father].first.size(); i++)
+	    if (new_trie[father].first[i] == -1)
+	    {
+		new_trie[father].first[i] = nodeNum;
+		break;
+	    }
+    }
+
+    if (n->sons.size() == 0)
+	tmp.push_back(-2);
+    else
+	for (size_t i = 0; i < n->sons.size(); i++)
+	    tmp.push_back(-1);
+
+    new_trie.push_back(std::make_pair(tmp, std::make_pair(nodeNum, n)));
+ 
+    father = nodeNum;
+    nodeNum++;
+
+    tmp.clear();
+    for (std::map<char, Node*>::iterator it = n->sons.begin();
+	 it != n->sons.end(); ++it)
+	deepthFirstSearch(it->second, father);
+
+}
+
+void PatriciaTrie::createRawFile(std::string filename)
+{
+    std::ofstream file(filename);
+
+    // Header
+    IntOctets n;
+    ShortOctets n2;
+
+    n.i = sizeof(char) * suffixes.size();
+    file << n.a[0];
+    file << n.a[1];
+    file << n.a[2];
+    file << n.a[3];
+    file.flush();
+
+    n.i = 12;
+    file << n.a[0];
+    file << n.a[1];
+    file << n.a[2];
+    file << n.a[3];
+    file.flush();
+
+    n.i = 12 + sizeof(char) * suffixes.size();
+    file << n.a[0];
+    file << n.a[1];
+    file << n.a[2];
+    file << n.a[3];
+    file.flush();
+
+    // Suffixes
+    for (std::vector<char>::iterator it = suffixes.begin(); it != suffixes.end(); ++it)
+	file << *it;
+
+    // Transform the patricia trie
+    deepthFirstSearch(root, -1);
+    for (size_t i = 0; i < new_trie.size(); i++)
+    {
+	n.i = new_trie[i].second.second->index;
+	file << n.a[0];
+	file << n.a[1];
+	file << n.a[2];
+	file << n.a[3];
+	file.flush();
+
+	n.i = new_trie[i].second.second->freq;
+	file << n.a[0];
+	file << n.a[1];
+	file << n.a[2];
+	file << n.a[3];
+	file.flush();
+
+	n.i = new_trie[i].second.second->length;
+	file << n.a[0];
+	file << n.a[1];
+	file << n.a[2];
+	file << n.a[3];
+	file.flush();
+
+	file << new_trie[i].second.second->c;
+	file.flush();
+
+	file << new_trie[i].second.second->isWord;
+	file.flush();
+
+	n2.i = new_trie[i].first.size();
+	file << n2.a[0];
+	file << n2.a[1];
+	file.flush();
+
+	for (size_t j = 0; j < new_trie[i].first.size(); j++)
+	    if (new_trie[i].first[j] != -2)
+	    {
+		n.i =  new_trie[i].first[j] * BLOCK_SIZE + sizeof(int) * new_trie[i].first.size();
+		file << n.a[0];
+		file << n.a[1];
+		file << n.a[2];
+		file << n.a[3];
+		file.flush();
+	    }
+    }
+
+    file.close();
+/*
+    std::string name_compress = filename + "_compress";
+ 
+    FILE* in = fopen(filename.c_str(), "r+");
+    FILE* out = fopen(name_compress.c_str(), "a+");
+
+    compress(in, out, 1);
+
+    fclose(in);
+    fclose(out);
+
+    rename(name_compress.c_str(), filename.c_str());
+*/
 }
