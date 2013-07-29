@@ -2,9 +2,8 @@
 # define INTERPRETER_HPP
 
 #include "../patriciaTrie/patriciaTrie.hpp"
-#include <map>
 
-typedef std::vector<std::string> stringVec;
+typedef std::map<std::string, std::pair<unsigned short, size_t>> resMap;
 
 class Interpreter
 {
@@ -14,15 +13,14 @@ class Interpreter
 
     public:
     Interpreter(std::string file);
-    stringVec getResults(int distance, std::string word);
+    void getResults(unsigned short distance, std::string word);
 
     private:
     void browse(Node* n);
-    //size_t getNextWord(Node* n, unsigned short curIndex, unsigned short curDist, std::string& suf, int& i);
-    size_t maxDist;
-    void getNextWord(Node* n, int i, int j, int dist, std::string curWord);
+    unsigned short maxDist;
+    void getNextWord(Node* n, unsigned short i, unsigned short j, unsigned short dist, std::string curWord);
     std::string word;
-    stringVec results;
+    resMap results;
     PatriciaTrie* p;
 
 private:
