@@ -18,4 +18,27 @@
 # include <zlib.h>
 # include <stdio.h>
 
+# include <sys/mman.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+
+union IntOctets
+{
+    int i;
+    char a[4];
+};
+
+union SizeTOctets
+{
+    size_t i;
+    char a[4];
+};
+
+union ShortOctets
+{
+    short i;
+    char a[2];
+};
+
 #endif

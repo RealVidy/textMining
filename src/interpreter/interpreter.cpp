@@ -169,10 +169,39 @@ int Interpreter::decompress(FILE* source, FILE* dest)
 
 void Interpreter::loadData(std::string filename)
 {
+    int fd;
+    int size_header = 3;
+    size_t size_file = sizeof(size_t) * size_header;
+
+    size_t *metadata;
+
+    fd = open(filename.c_str(), O_RDONLY);
+    if (fd == -1)
+    {
+	std::cerr << "Error opening file for reading" << std::endl;
+	exit(-1);
+    }
+
+    metadata = static_cast<size_t*>(mmap(NULL, size_file,
+					PROT_READ, MAP_SHARED,
+					fd, 0));
+    if (metadata == MAP_FAILED)
+    {
+	close(fd);
+	std::cerr << "Error mmapping the file" << std::endl;
+	exit(-1);
+    }
+    
+    for (int i = 0; i < size_header; i++)
+	printf("%d: %d\n", i, metadata[i]);
+
     std::ifstream file(filename);
     std::string content;
 
     file >> content;
 
-    std::cout << content << std::endl;
+    std::cout << (int) content[0] << std::endl;
+
+    munmap(metadata, size_file);
+    close(fd);
 }

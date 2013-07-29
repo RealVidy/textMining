@@ -255,9 +255,25 @@ void PatriciaTrie::createRawFile(std::string filename)
     std::ofstream file(filename);
 
     // Header
-    file << suffixes.size();
-    file << 13; // Array suffixes offset
-    file << 12 + sizeof(char) * suffixes.size(); // Patricia Trie Offset
+    IntOctets n;
+    n.i = sizeof(char) * suffixes.size();
+    file << n.a[0];
+    file << n.a[1];
+    file << n.a[2];
+    file << n.a[3];
+
+    n.i = 12;
+    file << n.a[0];
+    file << n.a[1];
+    file << n.a[2];
+    file << n.a[3];
+
+    n.i = 12 + sizeof(char) * suffixes.size();
+
+    file << n.a[0];
+    file << n.a[1];
+    file << n.a[2];
+    file << n.a[3];
 
     // Suffixes
     for (std::vector<char>::iterator it = suffixes.begin(); it != suffixes.end(); ++it)
@@ -267,16 +283,41 @@ void PatriciaTrie::createRawFile(std::string filename)
     deepthFirstSearch(root, -1);
     for (int i = 0; i < new_trie.size(); i++)
     {
-	file << new_trie[i].second.second->index;
-	file << new_trie[i].second.second->freq;
-	file << new_trie[i].second.second->length;
+	n.i = new_trie[i].second.second->index;
+	file << n.a[0];
+	file << n.a[1];
+	file << n.a[2];
+	file << n.a[3];
+
+	n.i = new_trie[i].second.second->freq;
+	file << n.a[0];
+	file << n.a[1];
+	file << n.a[2];
+	file << n.a[3];
+
+	n.i = new_trie[i].second.second->length;
+	file << n.a[0];
+	file << n.a[1];
+	file << n.a[2];
+	file << n.a[3];
+
 	file << new_trie[i].second.second->c;
 	file << new_trie[i].second.second->isWord;
-	file << new_trie[i].first.size();
+
+	ShortOctets n2;
+	n2.i = new_trie[i].first.size();
+	file << n2.a[0];
+	file << n2.a[1];
 
 	for (int j = 0; j < new_trie[i].first.size(); j++)
 	    if (new_trie[i].first[j] != -2)
-		file << new_trie[i].first[j] * BLOCK_SIZE + sizeof(int) * new_trie[i].first.size();
+	    {
+		n.i =  new_trie[i].first[j] * BLOCK_SIZE + sizeof(int) * new_trie[i].first.size();
+		file << n.a[0];
+		file << n.a[1];
+		file << n.a[2];
+		file << n.a[3];
+	    }
     }
 
     file.close();
