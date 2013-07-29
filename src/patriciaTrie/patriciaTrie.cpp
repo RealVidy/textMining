@@ -171,8 +171,8 @@ int PatriciaTrie::compile(void)
     return 0;
 }
 
-/*
-int compress(FILE* source, FILE* dest, int level)
+
+int PatriciaTrie::compress(FILE* source, FILE* dest, int level)
 {
     int ret, flush;
     unsigned have;
@@ -215,7 +215,7 @@ int compress(FILE* source, FILE* dest, int level)
     (void) deflateEnd(&strm);
     return Z_OK;
 }
-*/
+
 
 int nodeNum = 0;
 void PatriciaTrie::deepthFirstSearch(Node* n, int father)
@@ -238,8 +238,8 @@ void PatriciaTrie::deepthFirstSearch(Node* n, int father)
 	for (int i = 0; i < n->sons.size(); i++)
 	    tmp.push_back(-1);
 
-    new_trie.push_back(std::make_pair(tmp, nodeNum));
-    
+    new_trie.push_back(std::make_pair(tmp, std::make_pair(nodeNum, n)));
+ 
     father = nodeNum;
     nodeNum++;
 
@@ -250,19 +250,6 @@ void PatriciaTrie::deepthFirstSearch(Node* n, int father)
 
 }
 
-void PatriciaTrie::transformTrie()
-{
-    deepthFirstSearch(root, -1);
-
-    for (int i = 0; i < new_trie.size(); i++)
-    {
-	std::cout << "==> Node: " << new_trie[i].second << std::endl;
-	for (int j = 0; j < new_trie[i].first.size(); j++)
-	    std::cout << "> Son " << j  << " is at " << new_trie[i].first[j] << std::endl; 
-    }
-
-}
-
 void PatriciaTrie::createRawFile(std::string filename)
 {
     std::ofstream file(filename);
@@ -270,22 +257,27 @@ void PatriciaTrie::createRawFile(std::string filename)
     // Header
     file << suffixes.size();
     file << 13; // Array suffixes offset
-    file << 12 + sizeof(char) * suffixes.size() + 1; // Patricia Trie Offset
+    file << 12 + sizeof(char) * suffixes.size(); // Patricia Trie Offset
 
+    // Suffixes
     for (std::vector<char>::iterator it = suffixes.begin(); it != suffixes.end(); ++it)
 	file << *it;
 
+    // Transform the patricia trie
+    deepthFirstSearch(root, -1);
+    for (int i = 0; i < new_trie.size(); i++)
+    {
+	file << new_trie[i].second.second->index;
+	file << new_trie[i].second.second->freq;
+	file << new_trie[i].second.second->length;
+	file << new_trie[i].second.second->c;
+	file << new_trie[i].second.second->isWord;
+	file << new_trie[i].first.size();
+
+	for (int j = 0; j < new_trie[i].first.size(); j++)
+	    if (new_trie[i].first[j] != -2)
+		file << new_trie[i].first[j] * BLOCK_SIZE + sizeof(int) * new_trie[i].first.size();
+    }
+
     file.close();
-
-    transformTrie();
-
-/*
-    FILE* sources = fopen(filename.c_str(), "a+");
-    FILE* dest = fopen("test_commpressed", "a+");
-    
-    compress(sources, dest, 1);
-
-    fclose(sources);
-    fclose(dest);
-*/
 }

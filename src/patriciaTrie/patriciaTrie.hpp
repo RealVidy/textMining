@@ -11,16 +11,11 @@
 # include <map>
 
 # include <assert.h>
-//# include <zlib.h>
+# include <zlib.h>
 # include <stdio.h>
 
-# include <boost/archive/binary_oarchive.hpp>
-# include <boost/archive/binary_iarchive.hpp>
-
-# include <boost/serialization/map.hpp>
-# include <boost/serialization/vector.hpp>
-
 # define CHUNK (16384)
+# define BLOCK_SIZE (16)
 
 struct Node
 {
@@ -32,18 +27,6 @@ struct Node
     unsigned short length;
     char c;
     bool isWord;
-
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
-	ar & sons;
-	ar & index;
-	ar & freq;
-	ar & length;
-	ar & c;
-	ar & isWord;
-    }
 
     void print(void);
     Node(size_t index, size_t freq, unsigned short length, char c);
@@ -62,15 +45,6 @@ private:
     Node* burstDown(size_t index, size_t i, size_t freq, Node* n);
     void browse(std::string word, Node* n);
 
-private:
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-	{
-	    ar & suffixes;
-	    ar & root;
-	}
-
 public:
     PatriciaTrie(std::string f);
     PatriciaTrie(void);
@@ -83,9 +57,11 @@ public:
     std::vector<char> suffixes;
 
 private:
-    std::vector<std::pair<std::vector<int>, int>> new_trie;
+    int compress(FILE* souce, FILE* dest, int level);
+
+private:
+    std::vector<std::pair<std::vector<int>, std::pair<int, Node*>>> new_trie;
     void deepthFirstSearch(Node *n, int father);
-    void transformTrie();
 
 public:
     void createRawFile(std::string filename);

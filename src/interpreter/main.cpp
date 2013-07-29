@@ -15,6 +15,8 @@ int main(int argc, char** argv)
 
     Interpreter* inter = new Interpreter(file);
 
+    inter->loadData("test");
+
     while (std::cin >> drop >> distance >> word)
         inter->getResults(distance, word);
 

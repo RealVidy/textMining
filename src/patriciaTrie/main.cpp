@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 
     p->compile();
 
-    p->createRawFile("test");
+    p->createRawFile(out);
 
     delete(p);
 
