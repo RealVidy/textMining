@@ -1,7 +1,8 @@
 #ifndef INTERPRETER_HPP
 # define INTERPRETER_HPP
 
-#include "../compilator/compilator.hpp"
+# include "includes.hpp"
+# include "patriciatrie.hpp"
 
 typedef std::map<std::string, std::pair<unsigned short, size_t>> resMap;
 

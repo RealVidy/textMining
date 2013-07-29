@@ -1,4 +1,4 @@
-#include "interpreter.hpp"
+#include "../headers/interpreter.hpp"
 
 int main(int argc, char** argv)
 {

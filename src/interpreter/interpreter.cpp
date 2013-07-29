@@ -1,4 +1,4 @@
-#include "interpreter.hpp"
+#include "../headers/interpreter.hpp"
 
 #define MAX(a, b)(a > b ? a : b)
 
