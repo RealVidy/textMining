@@ -150,6 +150,57 @@ interpreter/fast:
 	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/build
 .PHONY : interpreter/fast
 
+src/compilator/compilator.o: src/compilator/compilator.cpp.o
+.PHONY : src/compilator/compilator.o
+
+# target to build an object file
+src/compilator/compilator.cpp.o:
+	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/compilator.cpp.o
+	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/compilator/compilator.cpp.o
+.PHONY : src/compilator/compilator.cpp.o
+
+src/compilator/compilator.i: src/compilator/compilator.cpp.i
+.PHONY : src/compilator/compilator.i
+
+# target to preprocess a source file
+src/compilator/compilator.cpp.i:
+	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/compilator.cpp.i
+	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/compilator/compilator.cpp.i
+.PHONY : src/compilator/compilator.cpp.i
+
+src/compilator/compilator.s: src/compilator/compilator.cpp.s
+.PHONY : src/compilator/compilator.s
+
+# target to generate assembly for a file
+src/compilator/compilator.cpp.s:
+	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/compilator.cpp.s
+	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/compilator/compilator.cpp.s
+.PHONY : src/compilator/compilator.cpp.s
+
+src/compilator/main.o: src/compilator/main.cpp.o
+.PHONY : src/compilator/main.o
+
+# target to build an object file
+src/compilator/main.cpp.o:
+	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/main.cpp.o
+.PHONY : src/compilator/main.cpp.o
+
+src/compilator/main.i: src/compilator/main.cpp.i
+.PHONY : src/compilator/main.i
+
+# target to preprocess a source file
+src/compilator/main.cpp.i:
+	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/main.cpp.i
+.PHONY : src/compilator/main.cpp.i
+
+src/compilator/main.s: src/compilator/main.cpp.s
+.PHONY : src/compilator/main.s
+
+# target to generate assembly for a file
+src/compilator/main.cpp.s:
+	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/main.cpp.s
+.PHONY : src/compilator/main.cpp.s
+
 src/interpreter/interpreter.o: src/interpreter/interpreter.cpp.o
 .PHONY : src/interpreter/interpreter.o
 
@@ -198,57 +249,6 @@ src/interpreter/main.cpp.s:
 	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/interpreter/main.cpp.s
 .PHONY : src/interpreter/main.cpp.s
 
-src/patriciaTrie/main.o: src/patriciaTrie/main.cpp.o
-.PHONY : src/patriciaTrie/main.o
-
-# target to build an object file
-src/patriciaTrie/main.cpp.o:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/patriciaTrie/main.cpp.o
-.PHONY : src/patriciaTrie/main.cpp.o
-
-src/patriciaTrie/main.i: src/patriciaTrie/main.cpp.i
-.PHONY : src/patriciaTrie/main.i
-
-# target to preprocess a source file
-src/patriciaTrie/main.cpp.i:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/patriciaTrie/main.cpp.i
-.PHONY : src/patriciaTrie/main.cpp.i
-
-src/patriciaTrie/main.s: src/patriciaTrie/main.cpp.s
-.PHONY : src/patriciaTrie/main.s
-
-# target to generate assembly for a file
-src/patriciaTrie/main.cpp.s:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/patriciaTrie/main.cpp.s
-.PHONY : src/patriciaTrie/main.cpp.s
-
-src/patriciaTrie/patriciaTrie.o: src/patriciaTrie/patriciaTrie.cpp.o
-.PHONY : src/patriciaTrie/patriciaTrie.o
-
-# target to build an object file
-src/patriciaTrie/patriciaTrie.cpp.o:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/patriciaTrie/patriciaTrie.cpp.o
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/patriciaTrie/patriciaTrie.cpp.o
-.PHONY : src/patriciaTrie/patriciaTrie.cpp.o
-
-src/patriciaTrie/patriciaTrie.i: src/patriciaTrie/patriciaTrie.cpp.i
-.PHONY : src/patriciaTrie/patriciaTrie.i
-
-# target to preprocess a source file
-src/patriciaTrie/patriciaTrie.cpp.i:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/patriciaTrie/patriciaTrie.cpp.i
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/patriciaTrie/patriciaTrie.cpp.i
-.PHONY : src/patriciaTrie/patriciaTrie.cpp.i
-
-src/patriciaTrie/patriciaTrie.s: src/patriciaTrie/patriciaTrie.cpp.s
-.PHONY : src/patriciaTrie/patriciaTrie.s
-
-# target to generate assembly for a file
-src/patriciaTrie/patriciaTrie.cpp.s:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/patriciaTrie/patriciaTrie.cpp.s
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/patriciaTrie/patriciaTrie.cpp.s
-.PHONY : src/patriciaTrie/patriciaTrie.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -261,18 +261,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... interpreter"
 	@echo "... rebuild_cache"
+	@echo "... src/compilator/compilator.o"
+	@echo "... src/compilator/compilator.i"
+	@echo "... src/compilator/compilator.s"
+	@echo "... src/compilator/main.o"
+	@echo "... src/compilator/main.i"
+	@echo "... src/compilator/main.s"
 	@echo "... src/interpreter/interpreter.o"
 	@echo "... src/interpreter/interpreter.i"
 	@echo "... src/interpreter/interpreter.s"
 	@echo "... src/interpreter/main.o"
 	@echo "... src/interpreter/main.i"
 	@echo "... src/interpreter/main.s"
-	@echo "... src/patriciaTrie/main.o"
-	@echo "... src/patriciaTrie/main.i"
-	@echo "... src/patriciaTrie/main.s"
-	@echo "... src/patriciaTrie/patriciaTrie.o"
-	@echo "... src/patriciaTrie/patriciaTrie.i"
-	@echo "... src/patriciaTrie/patriciaTrie.s"
 .PHONY : help
 
 

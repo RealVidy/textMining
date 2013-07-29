@@ -9,14 +9,14 @@ set(Prg_compiler_name compilator)
 set(Prg_interpreter_name interpreter)
 
 set(Compiler_SOURCES
-  src/patriciaTrie/main.cpp
-  src/patriciaTrie/patriciaTrie.cpp
+  src/compilator/main.cpp
+  src/compilator/compilator.cpp
   )
 
 set(Interpreter_SOURCES
   src/interpreter/main.cpp
   src/interpreter/interpreter.cpp
-  src/patriciaTrie/patriciaTrie.cpp
+  src/compilator/compilator.cpp
   )
 
 add_executable(${Prg_compiler_name} ${Compiler_SOURCES})
