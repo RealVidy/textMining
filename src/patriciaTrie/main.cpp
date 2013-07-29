@@ -16,13 +16,9 @@ int main(int argc, char** argv)
 
     p->compile();
 
-    std::ofstream ostream(out);
-    boost::archive::binary_oarchive oar(ostream);
+    p->createRawFile("test");
 
-    oar << p;
-    
     delete(p);
-    ostream.close();
 
     return 0;
 }
