@@ -118,6 +118,7 @@ int Interpreter::decompress(FILE* source, FILE* dest)
     unsigned char in[CHUNK];
     unsigned char out[CHUNK];
 
+    /* allocate inflate state */
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
@@ -127,25 +128,24 @@ int Interpreter::decompress(FILE* source, FILE* dest)
     if (ret != Z_OK)
         return ret;
 
+    /* decompress until deflate stream ends or end of file */
     do {
         strm.avail_in = fread(in, 1, CHUNK, source);
-        if (ferror(source))
-	{
+        if (ferror(source)) {
             (void)inflateEnd(&strm);
             return Z_ERRNO;
         }
         if (strm.avail_in == 0)
             break;
         strm.next_in = in;
-	
-	do {
+
+        /* run inflate() on input until output buffer not full */
+        do {
             strm.avail_out = CHUNK;
             strm.next_out = out;
             ret = inflate(&strm, Z_NO_FLUSH);
             assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            
-	    switch (ret)
-	    {
+            switch (ret) {
             case Z_NEED_DICT:
                 ret = Z_DATA_ERROR;     /* and fall through */
             case Z_DATA_ERROR:
@@ -154,15 +154,16 @@ int Interpreter::decompress(FILE* source, FILE* dest)
                 return ret;
             }
             have = CHUNK - strm.avail_out;
-
-            if (fwrite(out, 1, have, dest) != have || ferror(dest))
-	    {
+            if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
                 (void)inflateEnd(&strm);
                 return Z_ERRNO;
             }
-	} while (strm.avail_out == 0);
+        } while (strm.avail_out == 0);
+
+        /* done when inflate() says it's done */
     } while (ret != Z_STREAM_END);
 
+    /* clean up and return */
     (void)inflateEnd(&strm);
     return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
@@ -171,9 +172,19 @@ void Interpreter::loadData(std::string filename)
 {
     int fd;
     int size_header = 3;
-    size_t size_file = sizeof(size_t) * size_header;
-
     size_t *metadata;
+
+    struct stat st;
+    stat(filename.c_str(), &st);
+    size_t map_size = st.st_size;
+
+/*
+    FILE* in = fopen(filename.c_str(), "r+");
+    std::string file_uncompress = filename + "_uncompress";
+    FILE* out = fopen(file_uncompress.c_str(), "r+");
+
+    decompress(in, out);
+*/
 
     fd = open(filename.c_str(), O_RDONLY);
     if (fd == -1)
@@ -182,7 +193,8 @@ void Interpreter::loadData(std::string filename)
 	exit(-1);
     }
 
-    metadata = static_cast<size_t*>(mmap(NULL, size_file,
+    // Get metadata
+    metadata = static_cast<size_t*>(mmap(NULL, map_size,
 					PROT_READ, MAP_SHARED,
 					fd, 0));
     if (metadata == MAP_FAILED)
@@ -192,16 +204,33 @@ void Interpreter::loadData(std::string filename)
 	exit(-1);
     }
     
+    std::cout << "-- Metadatas -- " << std::endl;
     for (int i = 0; i < size_header; i++)
 	printf("%d: %d\n", i, metadata[i]);
 
-    std::ifstream file(filename);
-    std::string content;
+    // Get suffixes array
+    char* suffixes = (char *) malloc(sizeof(char) * 18);
 
-    file >> content;
+    lseek(fd, metadata[1], SEEK_CUR);
+    read(fd, suffixes, metadata[0]);
 
-    std::cout << (int) content[0] << std::endl;
+    std::cout << "-- Suffixes -- "<< std::endl;
+    for (size_t i = 0; i < metadata[0]; i++)
+	printf("%d: %c\n", i, suffixes[i]);
 
-    munmap(metadata, size_file);
+    // Get patricia trie root
+    int *index = (int*) malloc(sizeof(int));
+
+    lseek(fd,  metadata[2], SEEK_CUR);
+    read(fd, index, sizeof(int));
+
+    printf("0: %i\n", *index);
+
+    // Get
+    // Free maps
+    free(suffixes);
+    free(index);
+    munmap(metadata, map_size);
+
     close(fd);
 }

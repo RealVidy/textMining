@@ -4,7 +4,7 @@ int main(int argc, char** argv)
 {
     std::string file;
     std::string drop;
-    int distance;
+//    int distance;
     std::string word;
 
     if (argc == 2)

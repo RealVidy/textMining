@@ -224,7 +224,7 @@ void PatriciaTrie::deepthFirstSearch(Node* n, int father)
 
     if (n != root)
     {
-	for (int i = 0; i < new_trie[father].first.size(); i++)
+	for (size_t i = 0; i < new_trie[father].first.size(); i++)
 	    if (new_trie[father].first[i] == -1)
 	    {
 		new_trie[father].first[i] = nodeNum;
@@ -235,7 +235,7 @@ void PatriciaTrie::deepthFirstSearch(Node* n, int father)
     if (n->sons.size() == 0)
 	tmp.push_back(-2);
     else
-	for (int i = 0; i < n->sons.size(); i++)
+	for (size_t i = 0; i < n->sons.size(); i++)
 	    tmp.push_back(-1);
 
     new_trie.push_back(std::make_pair(tmp, std::make_pair(nodeNum, n)));
@@ -285,7 +285,7 @@ void PatriciaTrie::createRawFile(std::string filename)
 
     // Transform the patricia trie
     deepthFirstSearch(root, -1);
-    for (int i = 0; i < new_trie.size(); i++)
+    for (size_t i = 0; i < new_trie.size(); i++)
     {
 	n.i = new_trie[i].second.second->index;
 	file << n.a[0];
@@ -319,7 +319,7 @@ void PatriciaTrie::createRawFile(std::string filename)
 	file << n2.a[1];
 	file.flush();
 
-	for (int j = 0; j < new_trie[i].first.size(); j++)
+	for (size_t j = 0; j < new_trie[i].first.size(); j++)
 	    if (new_trie[i].first[j] != -2)
 	    {
 		n.i =  new_trie[i].first[j] * BLOCK_SIZE + sizeof(int) * new_trie[i].first.size();
@@ -332,7 +332,7 @@ void PatriciaTrie::createRawFile(std::string filename)
     }
 
     file.close();
-
+/*
     std::string name_compress = filename + "_compress";
  
     FILE* in = fopen(filename.c_str(), "r+");
@@ -344,5 +344,5 @@ void PatriciaTrie::createRawFile(std::string filename)
     fclose(out);
 
     rename(name_compress.c_str(), filename.c_str());
-
+*/
 }
