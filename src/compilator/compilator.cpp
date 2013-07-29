@@ -256,24 +256,28 @@ void PatriciaTrie::createRawFile(std::string filename)
 
     // Header
     IntOctets n;
+    ShortOctets n2;
+
     n.i = sizeof(char) * suffixes.size();
     file << n.a[0];
     file << n.a[1];
     file << n.a[2];
     file << n.a[3];
+    file.flush();
 
     n.i = 12;
     file << n.a[0];
     file << n.a[1];
     file << n.a[2];
     file << n.a[3];
+    file.flush();
 
     n.i = 12 + sizeof(char) * suffixes.size();
-
     file << n.a[0];
     file << n.a[1];
     file << n.a[2];
     file << n.a[3];
+    file.flush();
 
     // Suffixes
     for (std::vector<char>::iterator it = suffixes.begin(); it != suffixes.end(); ++it)
@@ -288,26 +292,32 @@ void PatriciaTrie::createRawFile(std::string filename)
 	file << n.a[1];
 	file << n.a[2];
 	file << n.a[3];
+	file.flush();
 
 	n.i = new_trie[i].second.second->freq;
 	file << n.a[0];
 	file << n.a[1];
 	file << n.a[2];
 	file << n.a[3];
+	file.flush();
 
 	n.i = new_trie[i].second.second->length;
 	file << n.a[0];
 	file << n.a[1];
 	file << n.a[2];
 	file << n.a[3];
+	file.flush();
 
 	file << new_trie[i].second.second->c;
-	file << new_trie[i].second.second->isWord;
+	file.flush();
 
-	ShortOctets n2;
+	file << new_trie[i].second.second->isWord;
+	file.flush();
+
 	n2.i = new_trie[i].first.size();
 	file << n2.a[0];
 	file << n2.a[1];
+	file.flush();
 
 	for (int j = 0; j < new_trie[i].first.size(); j++)
 	    if (new_trie[i].first[j] != -2)
@@ -317,8 +327,22 @@ void PatriciaTrie::createRawFile(std::string filename)
 		file << n.a[1];
 		file << n.a[2];
 		file << n.a[3];
+		file.flush();
 	    }
     }
 
     file.close();
+
+    std::string name_compress = filename + "_compress";
+ 
+    FILE* in = fopen(filename.c_str(), "r+");
+    FILE* out = fopen(name_compress.c_str(), "a+");
+
+    compress(in, out, 1);
+
+    fclose(in);
+    fclose(out);
+
+    rename(name_compress.c_str(), filename.c_str());
+
 }
