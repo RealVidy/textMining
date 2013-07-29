@@ -1,6 +1,8 @@
 #include "../headers/interpreter.hpp"
 
+#define MIN(a, b)(a < b ? a : b)
 #define MAX(a, b)(a > b ? a : b)
+#define ABS(a)(a < 0 ? -a : a)
 
 Interpreter::Interpreter(std::string file) : filename (file)
 {
@@ -8,6 +10,8 @@ Interpreter::Interpreter(std::string file) : filename (file)
     boost::archive::binary_iarchive iar(istream);
 
     iar >> this->p;
+
+    std::cerr << "Loading done" << std::endl;
 
     istream.close();
 }
@@ -17,7 +21,11 @@ void Interpreter::getResults(unsigned short distance, std::string word)
     maxDist = distance;
     this->word = word;
 
-    browse(this->p->root);
+    for (Node::nodeMap::iterator it = this->p->root->sons.begin();
+            it != this->p->root->sons.end();
+            ++it)
+        getWord(it->second, "");
+
     std::list<Result>::iterator it = results.begin();
     std::cout << "[";
 
@@ -35,19 +43,82 @@ void Interpreter::getResults(unsigned short distance, std::string word)
     std::cout << "]" << std::endl;
 }
 
-void Interpreter::browse(Node* n)
+int minimum(int a, int b, int c)
 {
+    return MIN(a, MIN(b, c));
+}
+
+int Interpreter::distance(std::string curWord)
+{
+    int lenStr1 = word.length();
+    int lenStr2 = curWord.length();
+    int i, j, cost;
+
+    int **d = new int*[lenStr1 + 1];
+
+    for(int k = 0; k <= lenStr1; ++k)
+        d[k] = new int[lenStr2 + 1];
+
+    //for loop is inclusive, need table 1 row/column larger than string length.
+    for (i = 0; i <= lenStr1; ++i)
+        d[i][0] = i;
+    for (j = 0; j <= lenStr2; ++j)
+        d[0][j] = j;
+    //Pseudo-code assumes string indices start at 1, not 0.
+    //If implemented, make sure to start comparing at 1st letter of strings.
+    for (i = 1; i <= lenStr1; ++i)
+        for (j = 1; j <= lenStr2; ++j)
+        {
+            if (word[i - 1] == curWord[j - 1])
+                cost = 0;
+            else
+                cost = 1;
+
+            d[i][j] = minimum(d[i-1][j] + 1, // deletion
+                              d[i][j-1] + 1,     // insertion
+                              d[i-1][j-1] + cost);   // substitution
+
+                if(i > 1 && j > 1 && word[i - 1] == curWord[j-2] && word[i-2] == curWord[j - 1])
+                    d[i][j] = MIN(d[i][j], d[i-2][j-2] + cost);  // transposition
+        }
+
+    int result = d[lenStr1][lenStr2];
+
+    for (int i = 0; i <= lenStr1; ++i)
+        delete[] d[i];
+    delete[] d;
+    return result;
+}
+
+void Interpreter::getWord(Node* n, std::string curWord)
+{
+/*
+    if (ABS((int)word.length() - (int)curWord.length()) > maxDist)
+        return;
+*/
+    curWord += n->c;
+
+    for (size_t i = 0; i < n->length; ++i)
+        curWord += p->suffixes[n->index + i];
+
+    if (n->isWord)
+    {
+        unsigned short myDist = distance(curWord);
+        if (myDist <= maxDist)
+            insertionSort(curWord, myDist, n->freq);
+    }
+
     for (Node::nodeMap::iterator it = n->sons.begin();
             it != n->sons.end();
             ++it)
-        getNextWord(it->second, 0, 0, 0, "");
+        getWord(it->second, curWord);
 }
 
 void Interpreter::insertionSort(std::string& word, unsigned short distance, size_t freq)
 {
     std::list<Result>::iterator it = results.begin();
     Result newRes(word, distance, freq);
-    
+
     for (; newRes != *it && *it < newRes && it != results.end(); ++it);
 
     if (it != results.end() && newRes == *it)
@@ -58,91 +129,6 @@ void Interpreter::insertionSort(std::string& word, unsigned short distance, size
     else
         results.insert(it, newRes);
 }
-
-// Current node,i: index word in node, j: index in word searched, distance
-void Interpreter::getNextWord(Node* n, unsigned short i, unsigned short j, unsigned short dist, std::string curWord)
-{
-    if (dist > maxDist || (int)n->length + 1 - (int)word.length() > (int)maxDist)
-        return;
-
-    // Stop case
-    if (i > n->length || j > word.length())
-    {
-        std::string accWord("");
-        accWord += n->c;
-        for (unsigned short a = 0; a < n->length; ++a)
-            accWord += p->suffixes[n->index + a];
-        
-        unsigned short dist1 = dist + word.length() - j;
-        unsigned short dist2 = dist + n->length - i + 1;
-
-        if (n->isWord && dist1 <= maxDist && dist2 <= maxDist)
-        {
-            // Insert Result
-            unsigned short myDist = MAX(dist1, dist2);
-            std::string myWord = curWord + accWord;
-            std::list<Result>::iterator it;
-
-            insertionSort(myWord, myDist, n->freq);
-        }
-
-        // Do we have to look in the sons?
-        if (i > n->length)
-            for (Node::nodeMap::iterator it = n->sons.begin();
-                it != n->sons.end();
-                ++it)
-                getNextWord(it->second, 0, j, dist, curWord + accWord);
-
-        return;
-    }
-
-    // If i == 0 we must look at n->c, otherwise, suffixes
-    if ((i == 0 && n->c != word[j]) ||
-            (i > 0 && p->suffixes[n->index + i - 1] != word[j]))
-    {
-        // Substitution
-        getNextWord(n, i + 1, j + 1, dist + 1, curWord);
-        // Insertion
-        getNextWord(n, i, j + 1, dist + 1, curWord);
-        // Suppression
-        getNextWord(n, i + 1, j, dist + 1, curWord);
-    }
-    else
-        getNextWord(n, i + 1, j + 1, dist, curWord); // equal letters
-}
-
-/*
-   size_t Interpreter::getNextWord(Node* n, unsigned short curIndex, unsigned short curDist, std::string& suf, int& i)
-   {
-   int dist = 0;
-   int insertDist = 0;
-   std::string sufString;
-   char c;
-
-   if (n->c != this->word[curIndex])
-   ++dist;
-
-   suf += n->c;
-   for (; (i < (int)n->length) && (curIndex + i < (int)this->word.length()) &&
-   (curDist + dist <= maxDist); ++i)
-   {
-   c = p->suffixes[n->index + i];
-   if (c != this->word[curIndex + i + 1])
-   ++dist;
-   suf += c;
-   }
-
-   for (size_t j = i; j < n->length; ++j)
-   suf += p->suffixes[n->index + j];
-
-   if (curDist + dist + n->length - i > maxDist)
-   return maxDist + 1;
-
-   return dist + n->length - i;
-   }
-
-*/
-
 
 int Interpreter::decompress(FILE* source, FILE* dest)
 {
@@ -180,12 +166,12 @@ int Interpreter::decompress(FILE* source, FILE* dest)
             ret = inflate(&strm, Z_NO_FLUSH);
             assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
             switch (ret) {
-            case Z_NEED_DICT:
-                ret = Z_DATA_ERROR;     /* and fall through */
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR:
-                (void)inflateEnd(&strm);
-                return ret;
+                case Z_NEED_DICT:
+                    ret = Z_DATA_ERROR;     /* and fall through */
+                case Z_DATA_ERROR:
+                case Z_MEM_ERROR:
+                    (void)inflateEnd(&strm);
+                    return ret;
             }
             have = CHUNK - strm.avail_out;
             if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
@@ -214,35 +200,35 @@ void Interpreter::loadData(std::string filename)
     size_t map_size = st.st_size;
 
 
-/*
-    FILE* in = fopen(filename.c_str(), "r+");
-    std::string file_uncompress = filename + "_uncompress";
-    FILE* out = fopen(file_uncompress.c_str(), "r+");
+    /*
+       FILE* in = fopen(filename.c_str(), "r+");
+       std::string file_uncompress = filename + "_uncompress";
+       FILE* out = fopen(file_uncompress.c_str(), "r+");
 
-    decompress(in, out);
-*/
+       decompress(in, out);
+       */
 
     fd = open(filename.c_str(), O_RDONLY);
     if (fd == -1)
     {
-	std::cerr << "Error opening file for reading" << std::endl;
-	exit(-1);
+        std::cerr << "Error opening file for reading" << std::endl;
+        exit(-1);
     }
 
     // Get metadata
     metadata = static_cast<size_t*>(mmap(NULL, map_size,
-					PROT_READ, MAP_SHARED,
-					fd, 0));
+                PROT_READ, MAP_SHARED,
+                fd, 0));
     if (metadata == MAP_FAILED)
     {
-	close(fd);
-	std::cerr << "Error mmapping the file" << std::endl;
-	exit(-1);
+        close(fd);
+        std::cerr << "Error mmapping the file" << std::endl;
+        exit(-1);
     }
-    
+
     std::cout << "-- Metadatas -- " << std::endl;
     for (int i = 0; i < size_header; i++)
-	printf("%d: %lu\n", i, metadata[i]);
+        printf("%d: %lu\n", i, metadata[i]);
 
     // Get suffixes array
     char* suffixes = (char *) malloc(sizeof(char) * 18);
@@ -252,7 +238,7 @@ void Interpreter::loadData(std::string filename)
 
     std::cout << "-- Suffixes -- "<< std::endl;
     for (size_t i = 0; i < metadata[0]; i++)
-	printf("%lu: %c\n", i, suffixes[i]);
+        printf("%lu: %c\n", i, suffixes[i]);
 
     // Get patricia trie root
     int *index = (int*) malloc(sizeof(int));
