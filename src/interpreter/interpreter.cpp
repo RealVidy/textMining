@@ -4,6 +4,12 @@
 
 Interpreter::Interpreter(std::string file) : filename (file)
 {
+    std::ifstream istream(file);
+    boost::archive::binary_iarchive iar(istream);
+
+    iar >> this->p;
+
+    istream.close();
 }
 
 void Interpreter::getResults(unsigned short distance, std::string word)
@@ -173,10 +179,12 @@ void Interpreter::loadData(std::string filename)
     int fd;
     int size_header = 3;
     size_t *metadata;
+    int nul = 0;
 
     struct stat st;
     stat(filename.c_str(), &st);
     size_t map_size = st.st_size;
+
 
 /*
     FILE* in = fopen(filename.c_str(), "r+");
@@ -211,8 +219,8 @@ void Interpreter::loadData(std::string filename)
     // Get suffixes array
     char* suffixes = (char *) malloc(sizeof(char) * 18);
 
-    lseek(fd, metadata[1], SEEK_CUR);
-    read(fd, suffixes, metadata[0]);
+    nul = lseek(fd, metadata[1], SEEK_CUR);
+    nul = read(fd, suffixes, metadata[0]);
 
     std::cout << "-- Suffixes -- "<< std::endl;
     for (size_t i = 0; i < metadata[0]; i++)
@@ -221,8 +229,10 @@ void Interpreter::loadData(std::string filename)
     // Get patricia trie root
     int *index = (int*) malloc(sizeof(int));
 
-    lseek(fd,  metadata[2], SEEK_CUR);
-    read(fd, index, sizeof(int));
+    nul = lseek(fd,  metadata[2], SEEK_CUR);
+    nul = read(fd, index, sizeof(int));
+
+    nul = nul;
 
     printf("0: %i\n", *index);
 

@@ -23,6 +23,11 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 
+# include <boost/archive/binary_iarchive.hpp>
+# include <boost/archive/binary_oarchive.hpp>
+# include <boost/serialization/map.hpp>
+# include <boost/serialization/vector.hpp> 
+
 union IntOctets
 {
     int i;

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 project(SPELL_CHECK) 
  
 SET (CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -g -Wall -Werror -Wextra -pedantic")
-SET (CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O3 -march=native")
+SET (CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O3 -march=native -Wall -Werror -Wextra -pedantic")
 
 set(Prg_compiler_name compilator)
 set(Prg_interpreter_name interpreter)
@@ -27,6 +27,12 @@ if(NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
+
+find_package(Boost 1.5 COMPONENTS serialization REQUIRED)
+if (Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+  target_link_libraries(${Prg_interpreter_name} ${Boost_LIBRARIES}) 
+endif(Boost_FOUND)
 
 find_package(ZLIB REQUIRED)
 if (ZLIB_FOUND)

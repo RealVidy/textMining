@@ -4,7 +4,7 @@ int main(int argc, char** argv)
 {
     std::string file;
     std::string drop;
-//    int distance;
+    int distance;
     std::string word;
 
     if (argc == 2)
@@ -14,11 +14,11 @@ int main(int argc, char** argv)
 
     Interpreter* inter = new Interpreter(file);
 
-    inter->loadData(file);
+//    inter->loadData(file);
 
-/*
+
     while (std::cin >> drop >> distance >> word)
         inter->getResults(distance, word);
-*/
+
     delete inter;
 }

@@ -21,6 +21,21 @@ struct Node
     char c;
     bool isWord;
 
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+	{
+	    int i = version;
+	    i = i;
+
+	    ar & sons;
+	    ar & index;
+	    ar & freq;
+	    ar & length;
+	    ar & c;
+	    ar & isWord; 
+	}
+
     void print(void);
     Node(size_t index, size_t freq, unsigned short length, char c);
     Node(void);
@@ -48,6 +63,18 @@ public:
     void print(void);
     Node* root = nullptr;
     std::vector<char> suffixes;
+
+private:
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+	{
+	    int i = version;
+	    i = i;
+
+	    ar & suffixes;
+	    ar & root;
+	}
 
 private:
     int compress(FILE* souce, FILE* dest, int level);
