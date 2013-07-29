@@ -242,7 +242,7 @@ void Interpreter::loadData(std::string filename)
     
     std::cout << "-- Metadatas -- " << std::endl;
     for (int i = 0; i < size_header; i++)
-	printf("%d: %d\n", i, metadata[i]);
+	printf("%d: %lu\n", i, metadata[i]);
 
     // Get suffixes array
     char* suffixes = (char *) malloc(sizeof(char) * 18);
@@ -252,7 +252,7 @@ void Interpreter::loadData(std::string filename)
 
     std::cout << "-- Suffixes -- "<< std::endl;
     for (size_t i = 0; i < metadata[0]; i++)
-	printf("%d: %c\n", i, suffixes[i]);
+	printf("%lu: %c\n", i, suffixes[i]);
 
     // Get patricia trie root
     int *index = (int*) malloc(sizeof(int));

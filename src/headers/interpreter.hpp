@@ -19,9 +19,9 @@ class Result
     }
         bool operator<(Result& rhs)
         {
-            return (distance < rhs.distance ||
-                    distance == rhs.distance && freq > rhs.freq ||
-                    distance == rhs.distance && freq == rhs.freq && word < rhs.word);
+            return ((distance < rhs.distance) ||
+                    (distance == rhs.distance && freq > rhs.freq) ||
+                    (distance == rhs.distance && freq == rhs.freq && word < rhs.word));
         }
 
         bool operator==(Result& rhs)
