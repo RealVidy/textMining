@@ -16,10 +16,21 @@ void Interpreter::getResults(unsigned short distance, std::string word)
     this->word = word;
 
     browse(this->p->root);
+    std::list<Result>::iterator it = results.begin();
+    std::cout << "[";
 
-    for (auto& r : results)
-        std::cout << r.first << " Distance: " << r.second.first <<
-            " Frequency: " << r.second.second << std::endl;
+
+    for (size_t i = results.size(); i > 1; ++it, --i)
+    {
+        std::cout << "{\"word\":\"" << it->word << "\"," <<
+            "\"freq\":" << it->freq << ",\"distance\":" << it->distance << "},";
+    }
+
+    if (results.size() > 0)
+        std::cout << "{\"word\":\"" << it->word << "\"," <<
+            "\"freq\":" << it->freq << ",\"distance\":" << it->distance << "}";
+
+    std::cout << "]" << std::endl;
 }
 
 void Interpreter::browse(Node* n)
@@ -28,6 +39,22 @@ void Interpreter::browse(Node* n)
             it != n->sons.end();
             ++it)
         getNextWord(it->second, 0, 0, 0, "");
+}
+
+void Interpreter::insertionSort(std::string& word, unsigned short distance, size_t freq)
+{
+    std::list<Result>::iterator it = results.begin();
+    Result newRes(word, distance, freq);
+    
+    for (; newRes != *it && *it < newRes && it != results.end(); ++it);
+
+    if (it != results.end() && newRes == *it)
+    {
+        if (distance < it->distance)
+            it->distance = distance;
+    }
+    else
+        results.insert(it, newRes);
 }
 
 // Current node,i: index word in node, j: index in word searched, distance
@@ -49,14 +76,15 @@ void Interpreter::getNextWord(Node* n, unsigned short i, unsigned short j, unsig
 
         if (n->isWord && dist1 <= maxDist && dist2 <= maxDist)
         {
+            // Insert Result
             unsigned short myDist = MAX(dist1, dist2);
             std::string myWord = curWord + accWord;
-            resMap::iterator it;
+            std::list<Result>::iterator it;
 
-            if ((it = results.find(myWord)) == results.end() || it->second.first > myDist)
-                results[myWord] = std::pair<unsigned short, size_t>(myDist, n->freq);
+            insertionSort(myWord, myDist, n->freq);
         }
 
+        // Do we have to look in the sons?
         if (i > n->length)
             for (Node::nodeMap::iterator it = n->sons.begin();
                 it != n->sons.end();
