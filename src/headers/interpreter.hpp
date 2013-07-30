@@ -51,7 +51,7 @@ class Interpreter
     unsigned short maxDist;
     void insertionSort(std::string& word, unsigned short distance, size_t freq);
     void getWord(Node* n, std::string curWord);
-    int distance(std::string curWord);
+    int distance(std::string& truncWord, std::string& curWord);
     std::string word;
     std::list<Result> results;
     PatriciaTrie* p;
