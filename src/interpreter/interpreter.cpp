@@ -4,7 +4,7 @@
 #define MAX(a, b)(a > b ? a : b)
 #define ABS(a)(a < 0 ? -a : a)
 
-Interpreter::Interpreter(std::string file) : filename (file)
+Interpreter::Interpreter(std::string file)
 {
     std::ifstream istream(file);
     boost::archive::binary_iarchive iar(istream);
@@ -16,7 +16,7 @@ Interpreter::Interpreter(std::string file) : filename (file)
     istream.close();
 }
 
-void Interpreter::getResults(unsigned short dist, std::string word)
+void Interpreter::getResults(const unsigned short dist, const std::string word)
 {
     maxDist = dist;
     this->word = word;
@@ -28,7 +28,7 @@ void Interpreter::getResults(unsigned short dist, std::string word)
             ++it)
         getWord(it->second, "");
 
-    std::list<Result>::iterator it = results.begin();
+    std::list<Result>::const_iterator it = results.begin();
     std::cout << "[";
 
 
@@ -44,10 +44,8 @@ void Interpreter::getResults(unsigned short dist, std::string word)
 
     std::cout << "]" << std::endl;
 }
-
-
-
-void Interpreter::getWord(Node* n, std::string curWord)
+ 
+void Interpreter::getWord(const Node* n, std::string curWord)
 {
     /*
        if (ABS((int)word.length() - (int)curWord.length()) > maxDist)
@@ -73,22 +71,24 @@ void Interpreter::getWord(Node* n, std::string curWord)
     {
         // Prefix already too far?
         std::string tmp = word.substr(0, curWord.length());
-        if (distance(tmp, curWord) > 2 * maxDist)
+        if (distance(tmp, curWord) - LCS(tmp, curWord) > maxDist)
             return;
     }
-    else if (distance(word, curWord) > 2 * maxDist)
+    else if (distance(word, curWord) - LCS(word, curWord) > maxDist)
         return;
 
-    for (Node::nodeMap::iterator it = n->sons.begin();
+    //std::cerr << word << " vs " << curWord << std::endl;
+
+    for (Node::nodeMap::const_iterator it = n->sons.begin();
             it != n->sons.end();
             ++it)
         getWord(it->second, curWord);
 }
 
-int Interpreter::distance(std::string& truncWord, std::string& curWord)
+int Interpreter::distance(const std::string& truncWord, const std::string& curWord)
 {
-    int lenStr1 = truncWord.length();
-    int lenStr2 = curWord.length();
+    const int lenStr1 = truncWord.length();
+    const int lenStr2 = curWord.length();
     int i, j, cost;
 
     //for loop is inclusive, need table 1 row/column larger than string length.
@@ -119,7 +119,8 @@ int Interpreter::distance(std::string& truncWord, std::string& curWord)
     return result;
 }
 
-void Interpreter::insertionSort(std::string& word, unsigned short distance, size_t freq)
+void Interpreter::insertionSort(const std::string& word,
+        const unsigned short distance, const size_t freq)
 {
     std::list<Result>::iterator it = results.begin();
     Result newRes(word, distance, freq);
@@ -134,6 +135,42 @@ void Interpreter::insertionSort(std::string& word, unsigned short distance, size
     else
         results.insert(it, newRes);
 }
+
+int Interpreter::LCS(const std::string& str1, const std::string& str2)
+{
+     int* swap;
+     int* curr = currArray;
+     int* prev = prevArray;
+     int maxSubstr = 0;
+ 
+     for (size_t i = 0; i < str1.size(); ++i)
+     {
+          for (size_t j = 0; j < str2.size(); ++j)
+          {
+               if (str1[i] != str2[j])
+                    curr[j] = 0;
+               else
+               {
+                    if (i == 0 || j == 0)
+                         curr[j] = 1;
+                    else
+                         curr[j] = 1 + prev[j-1];
+                    //The next if can be replaced with:
+                    //maxSubstr = max(maxSubstr, curr[j]);
+                    //(You need algorithm.h library for using max())
+                    maxSubstr = MAX(maxSubstr, curr[j]);
+               }
+          }
+          swap = curr;
+          curr = prev;
+          prev = swap;
+     }
+
+     return maxSubstr;
+}
+
+
+
 /*
 
    int Interpreter::decompress(FILE* source, FILE* dest)
