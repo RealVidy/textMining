@@ -16,9 +16,9 @@ Interpreter::Interpreter(std::string file) : filename (file)
     istream.close();
 }
 
-void Interpreter::getResults(unsigned short distance, std::string word)
+void Interpreter::getResults(unsigned short dist, std::string word)
 {
-    maxDist = distance;
+    maxDist = dist;
     this->word = word;
 
     results.clear();
@@ -63,23 +63,22 @@ void Interpreter::getWord(Node* n, std::string curWord)
         unsigned short myDist = distance(word, curWord);
         if (myDist <= maxDist)
             insertionSort(curWord, myDist, n->freq);
+        /*
+        else if (word.length() < curWord.length())
+            return;
+        */
     }
 
-    /*
     if (word.length() > curWord.length())
     {
         // Prefix already too far?
-        std::string tmp = word.substr(0, curWord.length() - 1);
-        std::string tmp2 = word.substr(0, curWord.length());
-        std::string tmp3 = word.substr(0, curWord.length() + 1);
-        if (MIN(distance(tmp, curWord),
-                    MIN(distance(tmp2, curWord), distance(tmp3, curWord))) > maxDist)
-        {
-        //std::cout << tmp << std::endl;
+        std::string tmp = word.substr(0, curWord.length());
+        if (distance(tmp, curWord) > 2 * maxDist)
             return;
-        }
     }
-*/
+    else if (distance(word, curWord) > 2 * maxDist)
+        return;
+
     for (Node::nodeMap::iterator it = n->sons.begin();
             it != n->sons.end();
             ++it)
@@ -109,7 +108,7 @@ int Interpreter::distance(std::string& truncWord, std::string& curWord)
 
             d[i][j] = MIN(d[i-1][j] + 1, // deletion
                     MIN(d[i][j-1] + 1,     // insertion
-                    d[i-1][j-1] + cost));   // substitution
+                        d[i-1][j-1] + cost));   // substitution
 
             if(i > 1 && j > 1 && truncWord[i - 1] == curWord[j-2] && truncWord[i-2] == curWord[j - 1])
                 d[i][j] = MIN(d[i][j], d[i-2][j-2] + cost);  // transposition
@@ -137,62 +136,62 @@ void Interpreter::insertionSort(std::string& word, unsigned short distance, size
 }
 /*
 
-int Interpreter::decompress(FILE* source, FILE* dest)
-{
-    int ret;
-    unsigned have;
-    z_stream strm;
-    unsigned char in[CHUNK];
-    unsigned char out[CHUNK];
+   int Interpreter::decompress(FILE* source, FILE* dest)
+   {
+   int ret;
+   unsigned have;
+   z_stream strm;
+   unsigned char in[CHUNK];
+   unsigned char out[CHUNK];
 
-    // allocate inflate state
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = 0;
-    strm.next_in = Z_NULL;
-    ret = inflateInit(&strm);
-    if (ret != Z_OK)
-        return ret;
+// allocate inflate state
+strm.zalloc = Z_NULL;
+strm.zfree = Z_NULL;
+strm.opaque = Z_NULL;
+strm.avail_in = 0;
+strm.next_in = Z_NULL;
+ret = inflateInit(&strm);
+if (ret != Z_OK)
+return ret;
 
-    //decompress until deflate stream ends or end of file 
-    do {
-        strm.avail_in = fread(in, 1, CHUNK, source);
-        if (ferror(source)) {
-            (void)inflateEnd(&strm);
-            return Z_ERRNO;
-        }
-        if (strm.avail_in == 0)
-            break;
-        strm.next_in = in;
+//decompress until deflate stream ends or end of file 
+do {
+strm.avail_in = fread(in, 1, CHUNK, source);
+if (ferror(source)) {
+(void)inflateEnd(&strm);
+return Z_ERRNO;
+}
+if (strm.avail_in == 0)
+break;
+strm.next_in = in;
 
-        // run inflate() on input until output buffer not full 
-        do {
-            strm.avail_out = CHUNK;
-            strm.next_out = out;
-            ret = inflate(&strm, Z_NO_FLUSH);
-            assert(ret != Z_STREAM_ERROR);  // state not clobbered 
-            switch (ret) {
-                case Z_NEED_DICT:
-                    ret = Z_DATA_ERROR;     // and fall through 
-                case Z_DATA_ERROR:
-                case Z_MEM_ERROR:
-                    (void)inflateEnd(&strm);
-                    return ret;
-            }
-            have = CHUNK - strm.avail_out;
-            if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
-                (void)inflateEnd(&strm);
-                return Z_ERRNO;
-            }
-        } while (strm.avail_out == 0);
+// run inflate() on input until output buffer not full 
+do {
+strm.avail_out = CHUNK;
+strm.next_out = out;
+ret = inflate(&strm, Z_NO_FLUSH);
+assert(ret != Z_STREAM_ERROR);  // state not clobbered 
+switch (ret) {
+case Z_NEED_DICT:
+ret = Z_DATA_ERROR;     // and fall through 
+case Z_DATA_ERROR:
+case Z_MEM_ERROR:
+(void)inflateEnd(&strm);
+return ret;
+}
+have = CHUNK - strm.avail_out;
+if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
+(void)inflateEnd(&strm);
+return Z_ERRNO;
+}
+} while (strm.avail_out == 0);
 
-        // done when inflate() says it's done 
-    } while (ret != Z_STREAM_END);
+// done when inflate() says it's done 
+} while (ret != Z_STREAM_END);
 
-    // clean up and return 
-    (void)inflateEnd(&strm);
-    return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+// clean up and return 
+(void)inflateEnd(&strm);
+return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
 */
 
@@ -200,18 +199,18 @@ void Interpreter::loadData(std::string filename)
 {
     int nul = 0;
 
-/*
-    struct stat st;
-    stat(filename.c_str(), &st);
-    size_t map_size = st.st_size;
-*/
+    /*
+       struct stat st;
+       stat(filename.c_str(), &st);
+       size_t map_size = st.st_size;
+       */
     /*
        FILE* in = fopen(filename.c_str(), "r+");
        std::string file_uncompress = filename + "_uncompress";
        FILE* out = fopen(file_uncompress.c_str(), "r+");
 
        decompress(in, out);
-    */
+       */
 
 
     int fd = open(filename.c_str(), O_RDONLY);
@@ -232,7 +231,7 @@ void Interpreter::loadData(std::string filename)
     // 3: offset root trie
     std::cout << " -- METADATA -- " << std::endl;
     for (size_t i : metadata)
-	std::cout << "> " << i << std::endl;
+        std::cout << "> " << i << std::endl;
 
     // Get Suffixes
     char *suffixies = (char*) malloc(sizeof(char) * metadata[0]);
@@ -244,7 +243,7 @@ void Interpreter::loadData(std::string filename)
 
     std::cout << " -- SUFFIXIES -- " << std::endl;
     for (size_t i = 0; i < metadata[0]; i++)
-	std::cout << *(suffixies + i) << " ";
+        std::cout << *(suffixies + i) << " ";
     std::cout << std::endl;
 
     // Get root
