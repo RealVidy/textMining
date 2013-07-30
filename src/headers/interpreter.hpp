@@ -4,7 +4,9 @@
 # include "includes.hpp"
 # include "patriciatrie.hpp"
 
-#include <list>
+# include <list>
+
+//# include <google/profiler.h>
 
 class Result
 {
@@ -58,6 +60,7 @@ class Interpreter
 
 private:
     int decompress(FILE* sources, FILE* dst);
+    int d[512][512];
 
 public:
     void loadData(std::string filename);

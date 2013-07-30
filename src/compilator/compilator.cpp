@@ -171,7 +171,7 @@ int PatriciaTrie::compile(void)
     return 0;
 }
 
-
+/*
 int PatriciaTrie::compress(FILE* source, FILE* dest, int level)
 {
     int ret, flush;
@@ -215,7 +215,7 @@ int PatriciaTrie::compress(FILE* source, FILE* dest, int level)
     (void) deflateEnd(&strm);
     return Z_OK;
 }
-
+*/
 
 int nodeNum = 0;
 void PatriciaTrie::deepthFirstSearch(Node* n, int father)

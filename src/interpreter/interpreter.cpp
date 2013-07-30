@@ -21,6 +21,8 @@ void Interpreter::getResults(unsigned short distance, std::string word)
     maxDist = distance;
     this->word = word;
 
+    results.clear();
+
     for (Node::nodeMap::iterator it = this->p->root->sons.begin();
             it != this->p->root->sons.end();
             ++it)
@@ -43,52 +45,7 @@ void Interpreter::getResults(unsigned short distance, std::string word)
     std::cout << "]" << std::endl;
 }
 
-int minimum(int a, int b, int c)
-{
-    return MIN(a, MIN(b, c));
-}
 
-int Interpreter::distance(std::string& truncWord, std::string& curWord)
-{
-    int lenStr1 = truncWord.length();
-    int lenStr2 = curWord.length();
-    int i, j, cost;
-
-    int **d = new int*[lenStr1 + 1];
-
-    for(int k = 0; k <= lenStr1; ++k)
-        d[k] = new int[lenStr2 + 1];
-
-    //for loop is inclusive, need table 1 row/column larger than string length.
-    for (i = 0; i <= lenStr1; ++i)
-        d[i][0] = i;
-    for (j = 0; j <= lenStr2; ++j)
-        d[0][j] = j;
-    //Pseudo-code assumes string indices start at 1, not 0.
-    //If implemented, make sure to start comparing at 1st letter of strings.
-    for (i = 1; i <= lenStr1; ++i)
-        for (j = 1; j <= lenStr2; ++j)
-        {
-            if (truncWord[i - 1] == curWord[j - 1])
-                cost = 0;
-            else
-                cost = 1;
-
-            d[i][j] = minimum(d[i-1][j] + 1, // deletion
-                    d[i][j-1] + 1,     // insertion
-                    d[i-1][j-1] + cost);   // substitution
-
-            if(i > 1 && j > 1 && truncWord[i - 1] == curWord[j-2] && truncWord[i-2] == curWord[j - 1])
-                d[i][j] = MIN(d[i][j], d[i-2][j-2] + cost);  // transposition
-        }
-
-    int result = d[lenStr1][lenStr2];
-
-    for (int i = 0; i <= lenStr1; ++i)
-        delete[] d[i];
-    delete[] d;
-    return result;
-}
 
 void Interpreter::getWord(Node* n, std::string curWord)
 {
@@ -107,19 +64,60 @@ void Interpreter::getWord(Node* n, std::string curWord)
         if (myDist <= maxDist)
             insertionSort(curWord, myDist, n->freq);
     }
+
+    /*
     if (word.length() > curWord.length())
     {
         // Prefix already too far?
-        std::string tmp = word.substr(0, curWord.length());
+        std::string tmp = word.substr(0, curWord.length() - 1);
+        std::string tmp2 = word.substr(0, curWord.length());
+        std::string tmp3 = word.substr(0, curWord.length() + 1);
+        if (MIN(distance(tmp, curWord),
+                    MIN(distance(tmp2, curWord), distance(tmp3, curWord))) > maxDist)
+        {
         //std::cout << tmp << std::endl;
-        if (distance(tmp, curWord) > maxDist)
             return;
+        }
     }
-
+*/
     for (Node::nodeMap::iterator it = n->sons.begin();
             it != n->sons.end();
             ++it)
         getWord(it->second, curWord);
+}
+
+int Interpreter::distance(std::string& truncWord, std::string& curWord)
+{
+    int lenStr1 = truncWord.length();
+    int lenStr2 = curWord.length();
+    int i, j, cost;
+
+    //for loop is inclusive, need table 1 row/column larger than string length.
+    for (i = 0; i <= lenStr1; ++i)
+        d[i][0] = i;
+    for (j = 0; j <= lenStr2; ++j)
+        d[0][j] = j;
+    //Pseudo-code assumes string indices start at 1, not 0.
+    //If implemented, make sure to start comparing at 1st letter of strings.
+    for (i = 1; i <= lenStr1; ++i)
+        for (j = 1; j <= lenStr2; ++j)
+        {
+            if (truncWord[i - 1] == curWord[j - 1])
+                cost = 0;
+            else
+                cost = 1;
+
+            d[i][j] = MIN(d[i-1][j] + 1, // deletion
+                    MIN(d[i][j-1] + 1,     // insertion
+                    d[i-1][j-1] + cost));   // substitution
+
+            if(i > 1 && j > 1 && truncWord[i - 1] == curWord[j-2] && truncWord[i-2] == curWord[j - 1])
+                d[i][j] = MIN(d[i][j], d[i-2][j-2] + cost);  // transposition
+        }
+
+    int result = d[lenStr1][lenStr2];
+
+    return result;
 }
 
 void Interpreter::insertionSort(std::string& word, unsigned short distance, size_t freq)
@@ -137,6 +135,7 @@ void Interpreter::insertionSort(std::string& word, unsigned short distance, size
     else
         results.insert(it, newRes);
 }
+/*
 
 int Interpreter::decompress(FILE* source, FILE* dest)
 {
@@ -146,7 +145,7 @@ int Interpreter::decompress(FILE* source, FILE* dest)
     unsigned char in[CHUNK];
     unsigned char out[CHUNK];
 
-    /* allocate inflate state */
+    // allocate inflate state
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
@@ -156,7 +155,7 @@ int Interpreter::decompress(FILE* source, FILE* dest)
     if (ret != Z_OK)
         return ret;
 
-    /* decompress until deflate stream ends or end of file */
+    //decompress until deflate stream ends or end of file 
     do {
         strm.avail_in = fread(in, 1, CHUNK, source);
         if (ferror(source)) {
@@ -167,15 +166,15 @@ int Interpreter::decompress(FILE* source, FILE* dest)
             break;
         strm.next_in = in;
 
-        /* run inflate() on input until output buffer not full */
+        // run inflate() on input until output buffer not full 
         do {
             strm.avail_out = CHUNK;
             strm.next_out = out;
             ret = inflate(&strm, Z_NO_FLUSH);
-            assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
+            assert(ret != Z_STREAM_ERROR);  // state not clobbered 
             switch (ret) {
                 case Z_NEED_DICT:
-                    ret = Z_DATA_ERROR;     /* and fall through */
+                    ret = Z_DATA_ERROR;     // and fall through 
                 case Z_DATA_ERROR:
                 case Z_MEM_ERROR:
                     (void)inflateEnd(&strm);
@@ -188,13 +187,14 @@ int Interpreter::decompress(FILE* source, FILE* dest)
             }
         } while (strm.avail_out == 0);
 
-        /* done when inflate() says it's done */
+        // done when inflate() says it's done 
     } while (ret != Z_STREAM_END);
 
-    /* clean up and return */
+    // clean up and return 
     (void)inflateEnd(&strm);
     return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
+*/
 
 void Interpreter::loadData(std::string filename)
 {
