@@ -2,7 +2,6 @@
 
 #define MIN(a, b)(a < b ? a : b)
 #define MAX(a, b)(a > b ? a : b)
-#define ABS(a)(a < 0 ? -a : a)
 
 Interpreter::Interpreter(std::string file)
 {
@@ -12,7 +11,15 @@ Interpreter::Interpreter(std::string file)
     iar >> this->p;
 
     std::cerr << "Loading done" << std::endl;
+    /*
+    std::string tmp("minc");
+    std::string tmp2("mbia");
+    std::cerr << LCS(tmp, tmp2, tmp2.length()) << " " << distance(tmp, tmp2, tmp2.length()) << std::endl;
 
+    tmp = std::string("mince");
+    tmp2 = std::string("mbiance");
+    std::cerr << LCS(tmp, tmp2, tmp2.length()) << " " << distance(tmp, tmp2, tmp2.length()) << std::endl;
+    */
     istream.close();
 }
 
@@ -23,10 +30,14 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
 
     results.clear();
 
+    std::string curWord("");
+
+    curWord.resize(BUFFER_SIZE);
+
     for (Node::nodeMap::iterator it = this->p->root->sons.begin();
             it != this->p->root->sons.end();
             ++it)
-        getWord(it->second, "");
+        getWord(it->second, curWord, 0);
 
     std::list<Result>::const_iterator it = results.begin();
     std::cout << "[";
@@ -45,50 +56,61 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
     std::cout << "]" << std::endl;
 }
  
-void Interpreter::getWord(const Node* n, std::string curWord)
+void Interpreter::getWord(const Node* n, std::string& curWord, size_t index)
 {
-    /*
-       if (ABS((int)word.length() - (int)curWord.length()) > maxDist)
-       return;
-       */
-    curWord += n->c;
+    int tmpDist = 0;
+
+    curWord[index ++] = n->c;
 
     for (size_t i = 0; i < n->length; ++i)
-        curWord += p->suffixes[n->index + i];
+        curWord[index++] = p->suffixes[n->index + i];
 
     if (n->isWord)
     {
-        unsigned short myDist = distance(word, curWord);
+        unsigned short myDist = distance(word, curWord, index);
         if (myDist <= maxDist)
-            insertionSort(curWord, myDist, n->freq);
-        /*
-        else if (word.length() < curWord.length())
-            return;
-        */
+            insertionSort(curWord, myDist, n->freq, index);
     }
 
-    if (word.length() > curWord.length())
+    if (word.length() > index)//curWord.length())
     {
         // Prefix already too far?
-        std::string tmp = word.substr(0, curWord.length());
-        if (distance(tmp, curWord) - LCS(tmp, curWord) > maxDist)
+        std::string tmp = word.substr(0, index);//curWord.length());
+        if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
+                tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
+        {
+            /*
+            std::cerr << tmp << " " << curWord.substr(0, index) << " " <<
+                distance(tmp, curWord, index) << " " << LCS(tmp, curWord, index) << " " <<
+                distance(tmp, curWord, index) - LCS(tmp, curWord, index) << std::endl;
+                */
             return;
+        }
     }
-    else if (distance(word, curWord) - LCS(word, curWord) > maxDist)
-        return;
-
-    //std::cerr << word << " vs " << curWord << std::endl;
+    else
+    {
+        if ((tmpDist = distance(word, curWord, index)) > maxDist &&
+                tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
+        {
+            /*
+            std::cerr << word << " " << curWord.substr(0, index) << " " <<
+                distance(word, curWord, index) << " " << LCS(word, curWord, index) << " " <<
+               distance(word, curWord, index) - LCS(word, curWord, index) << std::endl;
+               */
+            return;
+        }
+    }
 
     for (Node::nodeMap::const_iterator it = n->sons.begin();
             it != n->sons.end();
             ++it)
-        getWord(it->second, curWord);
+        getWord(it->second, curWord, index);
 }
 
-int Interpreter::distance(const std::string& truncWord, const std::string& curWord)
+int Interpreter::distance(const std::string& truncWord, const std::string& curWord, const size_t index)
 {
     const int lenStr1 = truncWord.length();
-    const int lenStr2 = curWord.length();
+    const int lenStr2 = index;
     int i, j, cost;
 
     //for loop is inclusive, need table 1 row/column larger than string length.
@@ -119,10 +141,11 @@ int Interpreter::distance(const std::string& truncWord, const std::string& curWo
     return result;
 }
 
-void Interpreter::insertionSort(const std::string& word,
-        const unsigned short distance, const size_t freq)
+void Interpreter::insertionSort(std::string word,
+        const unsigned short distance, const size_t freq, const size_t index)
 {
     std::list<Result>::iterator it = results.begin();
+    word.resize(index);
     Result newRes(word, distance, freq);
 
     for (; newRes != *it && *it < newRes && it != results.end(); ++it);
@@ -136,39 +159,31 @@ void Interpreter::insertionSort(const std::string& word,
         results.insert(it, newRes);
 }
 
-int Interpreter::LCS(const std::string& str1, const std::string& str2)
+int Interpreter::LCS(const std::string& str1, const std::string& str2,
+        const size_t index, const size_t limit)
 {
-     int* swap;
-     int* curr = currArray;
-     int* prev = prevArray;
-     int maxSubstr = 0;
- 
-     for (size_t i = 0; i < str1.size(); ++i)
-     {
-          for (size_t j = 0; j < str2.size(); ++j)
-          {
-               if (str1[i] != str2[j])
-                    curr[j] = 0;
-               else
-               {
-                    if (i == 0 || j == 0)
-                         curr[j] = 1;
-                    else
-                         curr[j] = 1 + prev[j-1];
-                    //The next if can be replaced with:
-                    //maxSubstr = max(maxSubstr, curr[j]);
-                    //(You need algorithm.h library for using max())
-                    maxSubstr = MAX(maxSubstr, curr[j]);
-               }
-          }
-          swap = curr;
-          curr = prev;
-          prev = swap;
-     }
+    size_t res;
+    size_t k;
 
-     return maxSubstr;
+    for (size_t i = 0; i < str1.length(); ++i)
+    {
+        res = 0;
+        k = i;
+
+        for (size_t j = 0; j < index && k < str1.length(); ++j)
+        {
+            if (str1[k] == str2[j])
+            {
+                ++res;
+                ++k;
+            }
+            if (res >= limit)
+                return res;
+        }
+    }
+
+    return 0;
 }
-
 
 
 /*

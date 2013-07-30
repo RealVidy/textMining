@@ -6,7 +6,7 @@
 
 # include <list>
 
-//# include <google/profiler.h>
+# define BUFFER_SIZE 512
 
 class Result
 {
@@ -46,10 +46,12 @@ class Interpreter
     void getResults(const unsigned short distance, const std::string word);
 
     private:
-    void insertionSort(const std::string& word, const unsigned short distance, const size_t freq);
-    void getWord(const Node* n, std::string curWord);
-    int distance(const std::string& truncWord, const std::string& curWord);
-    int LCS(const std::string& str1, const std::string& str2);
+    void insertionSort(const std::string word, const unsigned short distance,
+            const size_t freq, const size_t index);
+    void getWord(const Node* n, std::string& curWord, size_t index);
+    int distance(const std::string& truncWord, const std::string& curWord, const size_t index);
+    int LCS(const std::string& str1, const std::string& str2,
+            const size_t index, const size_t limit);
 
     unsigned short maxDist;
     std::string word;
@@ -59,9 +61,9 @@ class Interpreter
 
 private:
     int decompress(FILE* sources, FILE* dst);
-    int d[512][512];
-    int currArray[512];
-    int prevArray[512];
+    int d[BUFFER_SIZE][BUFFER_SIZE];
+    //int currArray[BUFFER_SIZE];
+    //int prevArray[BUFFER_SIZE];
 
 public:
     void loadData(std::string filename);
