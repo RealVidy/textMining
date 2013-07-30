@@ -14,14 +14,18 @@
 # include <map>
 # include <bitset>
 
+# include <unistd.h>
+
 # include <assert.h>
 # include <zlib.h>
 # include <stdio.h>
+# include <fcntl.h>
 
+# include <sys/time.h>
+# include <sys/resource.h>
 # include <sys/mman.h>
 # include <sys/types.h>
 # include <sys/stat.h>
-# include <fcntl.h>
 
 # include <boost/archive/binary_iarchive.hpp>
 # include <boost/archive/binary_oarchive.hpp>

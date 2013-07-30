@@ -263,21 +263,18 @@ void PatriciaTrie::createRawFile(std::string filename)
     file << n.a[1];
     file << n.a[2];
     file << n.a[3];
-    file.flush();
 
     n.i = 12;
     file << n.a[0];
     file << n.a[1];
     file << n.a[2];
     file << n.a[3];
-    file.flush();
 
     n.i = 12 + sizeof(char) * suffixes.size();
     file << n.a[0];
     file << n.a[1];
     file << n.a[2];
     file << n.a[3];
-    file.flush();
 
     // Suffixes
     for (std::vector<char>::iterator it = suffixes.begin(); it != suffixes.end(); ++it)
@@ -285,6 +282,9 @@ void PatriciaTrie::createRawFile(std::string filename)
 
     // Transform the patricia trie
     deepthFirstSearch(root, -1);
+    
+    std::cout << new_trie[0].second.second->c << std::endl;
+
     for (size_t i = 0; i < new_trie.size(); i++)
     {
 	n.i = new_trie[i].second.second->index;
@@ -292,32 +292,26 @@ void PatriciaTrie::createRawFile(std::string filename)
 	file << n.a[1];
 	file << n.a[2];
 	file << n.a[3];
-	file.flush();
 
 	n.i = new_trie[i].second.second->freq;
 	file << n.a[0];
 	file << n.a[1];
 	file << n.a[2];
 	file << n.a[3];
-	file.flush();
 
 	n.i = new_trie[i].second.second->length;
 	file << n.a[0];
 	file << n.a[1];
 	file << n.a[2];
 	file << n.a[3];
-	file.flush();
 
 	file << new_trie[i].second.second->c;
-	file.flush();
 
 	file << new_trie[i].second.second->isWord;
-	file.flush();
 
 	n2.i = new_trie[i].first.size();
 	file << n2.a[0];
 	file << n2.a[1];
-	file.flush();
 
 	for (size_t j = 0; j < new_trie[i].first.size(); j++)
 	    if (new_trie[i].first[j] != -2)
@@ -327,7 +321,6 @@ void PatriciaTrie::createRawFile(std::string filename)
 		file << n.a[1];
 		file << n.a[2];
 		file << n.a[3];
-		file.flush();
 	    }
     }
 

@@ -198,9 +198,7 @@ int Interpreter::decompress(FILE* source, FILE* dest)
 
 void Interpreter::loadData(std::string filename)
 {
-    int fd;
     int nul = 0;
-    FILE* file = fopen(filename.c_str(), "r+");
 
 /*
     struct stat st;
@@ -215,7 +213,8 @@ void Interpreter::loadData(std::string filename)
        decompress(in, out);
     */
 
-    fd = open(filename.c_str(), O_RDONLY);
+
+    int fd = open(filename.c_str(), O_RDONLY);
     if (fd == -1)
     {
         std::cerr << "Error opening file for reading" << std::endl;
@@ -238,7 +237,9 @@ void Interpreter::loadData(std::string filename)
     // Get Suffixes
     char *suffixies = (char*) malloc(sizeof(char) * metadata[0]);
 
-    nul = fseek(file, metadata[1], SEEK_CUR);
+    nul = lseek(fd, metadata[1], SEEK_SET);
+    std::cout << "SEEK_CUR: " << nul << std::endl;
+
     nul = read(fd, suffixies, metadata[0]);
 
     std::cout << " -- SUFFIXIES -- " << std::endl;
@@ -250,8 +251,8 @@ void Interpreter::loadData(std::string filename)
     dataNode* root = (dataNode*) malloc(sizeof(dataNode));
 
     //nul = fseek(file, , SEEK_CUR);
+    std::cout <<"SEEK_CUR: " << lseek(fd, 41, SEEK_SET) << std::endl;
     nul = read(fd, root, sizeof(dataNode));
-
 
     std::cout << " -- ROOT -- " << std::endl;
     std::cout << "> Index: " << root->index << std::endl;
@@ -269,6 +270,5 @@ void Interpreter::loadData(std::string filename)
 
     free(suffixies);
     free(root);
-    fclose(file);
     close(fd);
 }
