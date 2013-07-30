@@ -191,22 +191,21 @@ int Interpreter::decompress(FILE* source, FILE* dest)
 void Interpreter::loadData(std::string filename)
 {
     int fd;
-    int size_header = 3;
-    size_t *metadata;
     int nul = 0;
+    FILE* file = fopen(filename.c_str(), "r+");
 
+/*
     struct stat st;
     stat(filename.c_str(), &st);
     size_t map_size = st.st_size;
-
-
+*/
     /*
        FILE* in = fopen(filename.c_str(), "r+");
        std::string file_uncompress = filename + "_uncompress";
        FILE* out = fopen(file_uncompress.c_str(), "r+");
 
        decompress(in, out);
-       */
+    */
 
     fd = open(filename.c_str(), O_RDONLY);
     if (fd == -1)
@@ -216,45 +215,52 @@ void Interpreter::loadData(std::string filename)
     }
 
     // Get metadata
-    metadata = static_cast<size_t*>(mmap(NULL, map_size,
-                PROT_READ, MAP_SHARED,
-                fd, 0));
-    if (metadata == MAP_FAILED)
-    {
-        close(fd);
-        std::cerr << "Error mmapping the file" << std::endl;
-        exit(-1);
-    }
+    size_t metadata[3];;
 
-    std::cout << "-- Metadatas -- " << std::endl;
-    for (int i = 0; i < size_header; i++)
-        printf("%d: %lu\n", i, metadata[i]);
+    nul = read(fd, metadata, sizeof(size_t) * 3);
 
-    // Get suffixes array
-    char* suffixes = (char *) malloc(sizeof(char) * 18);
+    // Print metadata
+    // 1: taille des suffixes
+    // 2: offset des suffixes
+    // 3: offset root trie
+    std::cout << " -- METADATA -- " << std::endl;
+    for (size_t i : metadata)
+	std::cout << "> " << i << std::endl;
 
-    nul = lseek(fd, metadata[1], SEEK_CUR);
-    nul = read(fd, suffixes, metadata[0]);
+    // Get Suffixes
+    char *suffixies = (char*) malloc(sizeof(char) * metadata[0]);
 
-    std::cout << "-- Suffixes -- "<< std::endl;
+    nul = fseek(file, metadata[1], SEEK_CUR);
+    nul = read(fd, suffixies, metadata[0]);
+
+    std::cout << " -- SUFFIXIES -- " << std::endl;
     for (size_t i = 0; i < metadata[0]; i++)
-        printf("%lu: %c\n", i, suffixes[i]);
+	std::cout << *(suffixies + i) << " ";
+    std::cout << std::endl;
 
-    // Get patricia trie root
-    int *index = (int*) malloc(sizeof(int));
+    // Get root
+    dataNode* root = (dataNode*) malloc(sizeof(dataNode));
 
-    nul = lseek(fd,  metadata[2], SEEK_CUR);
-    nul = read(fd, index, sizeof(int));
+    //nul = fseek(file, , SEEK_CUR);
+    nul = read(fd, root, sizeof(dataNode));
 
+
+    std::cout << " -- ROOT -- " << std::endl;
+    std::cout << "> Index: " << root->index << std::endl;
+    std::cout << "> Frequence: " << root->freq << std::endl;
+    std::cout << "> Length: " << root->length << std::endl;
+    std::cout << "> Char: " << root->c << std::endl;
+    std::cout << "> Is word: " << root->isWord << std::endl;
+    std::cout << "> Nb suns: " << root->nbSons << std::endl;
+
+    // Clear memmory
+
+
+    // To supress unused error
     nul = nul;
 
-    printf("0: %i\n", *index);
-
-    // Get
-    // Free maps
-    free(suffixes);
-    free(index);
-    munmap(metadata, map_size);
-
+    free(suffixies);
+    free(root);
+    fclose(file);
     close(fd);
 }

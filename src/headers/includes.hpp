@@ -46,4 +46,14 @@ union ShortOctets
     char a[2];
 };
 
+struct dataNode
+{
+    size_t index;
+    size_t freq;
+    unsigned short length;
+    char c;
+    bool isWord;
+    size_t nbSons;
+} __attribute__((packed));
+
 #endif
