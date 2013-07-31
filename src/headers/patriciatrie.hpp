@@ -51,7 +51,7 @@ public:
 
 private:
     // Each node          Vec of Sons   Sons numbers              no    Previous Node
-    std::vector<std::pair<std::vector<unsigned short>, std::pair<int, Node*>>> new_trie;
+    std::vector<std::pair<std::vector<int>, std::pair<int, Node*>>> new_trie;
     void deepthFirstSearch(Node *n, int father);
     void printVector();
 };

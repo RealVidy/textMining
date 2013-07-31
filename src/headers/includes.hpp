@@ -14,6 +14,8 @@
 # include <map>
 # include <bitset>
 
+# include <climits>
+
 # include <unistd.h>
 
 # include <assert.h>

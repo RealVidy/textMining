@@ -56,6 +56,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
 
     curWord[index++] = n.c;
 
+    std::cout << n.index << " " << std::endl;
     for (size_t i = 0; i < n.length; ++i)
         curWord[index++] = pSuffixes[n.index + i];
 
@@ -246,5 +247,5 @@ void Interpreter::loadData(std::string filename)
             pHeader->nb_suffixes * sizeof(char) + 
             pHeader->nb_node * sizeof(dataNode));
 
-    //    print_extract_data(pHeader, pSuffixes, pNode, pSons);
+    //print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }
