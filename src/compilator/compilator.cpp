@@ -1,3 +1,10 @@
+/**
+ * \file compilator.cpp
+ * \brief Regroupe les includes.
+ * \author Florian Thommains, Victor Degliame
+ * \date 31/07/2013
+ */
+
 #include "../headers/patriciatrie.hpp"
 
 PatriciaTrie::PatriciaTrie(std::string f) : filename (f)
@@ -126,16 +133,9 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
                 firstC);
         t->sons[firstC]->isWord = true;
 
-        // t->sons[firstC]->print();
-
-        //std::cout << word << std::endl;
         if (word.begin() != word.end())
             for (std::string::const_iterator it = word.begin() + 1; it != word.end(); ++it)
-            {
-                //std::cout << *it;
                 suffixes.push_back(*it);
-            }
-        //std::cout << std::endl;
     }
 
     return 0;
@@ -283,10 +283,7 @@ void PatriciaTrie::compile(std::string filename)
         n.i = new_trie[i].second.second->length;
         buff.push_back(n.a[0]);
         buff.push_back(n.a[1]);
-        /*
-           buff.push_back(n.a[2]);
-           buff.push_back(n.a[3]);
-           */
+
         buff.push_back(new_trie[i].second.second->c);
 
         buff.push_back(new_trie[i].second.second->isWord);

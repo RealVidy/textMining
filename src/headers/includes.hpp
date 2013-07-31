@@ -1,3 +1,10 @@
+/**
+ * \file includes.hpp
+ * \brief Regroupe les includes.
+ * \author Florian Thommains, Victor Degliame
+ * \date 31/07/2013
+ */
+
 #ifndef INCLUDE_HPP
 # define INCLUDE_HPP
 

@@ -1,3 +1,9 @@
+/**
+ * \file interpreter.cpp
+ * \author Florian Thommains, Victor Degliame
+ * \date 31/07/2013
+ */
+
 #include "../headers/interpreter.hpp"
 
 #define MIN(a, b)(a < b ? a : b)
@@ -5,9 +11,7 @@
 
 Interpreter::Interpreter(std::string file)
 {
-    std::cerr << "Loading begin" << std::endl;
     loadData(file);
-    std::cerr << "Loading done" << std::endl;
 }
 
 void Interpreter::getResults(const unsigned short dist, const std::string word)
@@ -22,18 +26,9 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
 
     curWord.resize(BUFFER_SIZE);
 
-    //  std::cerr << " -> " << pNode[0].nbSons << std::endl << std::endl;
-
     size_t acu = pNode[0].nbSons;
     for (int i = 0; i < pNode[0].nbSons; i++)
-    {
-        //	std::cerr << "-> " << pNode[pSons[i]].no << std::endl;
-        //	std::cerr << "-> " << pNode[pSons[i]].length << std::endl;
-        //	std::cerr << "-> " << pNode[pSons[i]].index << std::endl;
-        //	std::cerr << "-> " << pNode[pSons[i]].nbSons << std::endl;
-        //	std::cerr << std::endl;
         getWord(pNode[pSons[i]], curWord, 0, acu);
-    }
 
     std::list<Result>::const_iterator it = results.begin();
     std::cout << "[";
@@ -55,26 +50,16 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
 {
     int tmpDist = 0;
 
-    //    std::cerr << acu << " " << numBreak << " " << n.no << std::endl;
-
     if (numBreak > 0)
     {
-        if ((int) n.no < numBreak + 1)
-        {
-            std::cerr << "OH SHIT" << std::endl;
-        }
-
         acu += (int) n.no - numBreak - 1;
         numBreak = 0;
     }
 
     curWord[index++] = n.c;
 
-    //    std::cerr << "1- "<< curWord.substr(0, index) << " " << n.length << " " << n.no << " " << acu << std::endl;
     for (size_t i = 0; i < n.length; ++i)
         curWord[index++] = pSuffixes[n.index + i];
-
-    //  std::cerr << "2- "<< curWord.substr(0, index) << std::endl;
 
     if (n.isWord)
     {
@@ -117,7 +102,6 @@ int Interpreter::distance(const std::string& truncWord, const std::string& curWo
     const int lenStr2 = index;
     int i, j, cost;
 
-    //for loop is inclusive, need table 1 row/column larger than string length.
     for (i = 0; i <= lenStr1; ++i)
         d[i][0] = i;
     for (j = 0; j <= lenStr2; ++j)
@@ -148,7 +132,7 @@ void Interpreter::insertionSort(std::string myWord,
 {
     std::list<Result>::iterator it = results.begin();
     myWord.resize(index);
-    //std::cerr << myWord << std::endl;
+
     Result newRes(myWord, distance, freq);
 
     for (; it != results.end() && newRes != *it && *it < newRes; ++it);
@@ -188,42 +172,6 @@ int Interpreter::LCS(const std::string& str1, const std::string& str2,
     return 0;
 }
 
-void print_extract_data(Header* pHeader, char* pSuffixes,
-        dataNode* pNode, int* pSons)
-{
-    std::cout << " -- HEADER -- " << std::endl;
-    std::cout << "> Nombre de suffixes: " << pHeader->nb_suffixes << std::endl;
-    std::cout << "> Offset des suffixes: " << pHeader->suffixes_offset << std::endl;
-    std::cout << "> Nombre de node: " << pHeader->nb_node << std::endl;
-    std::cout << "> Offset du trie: " << pHeader->trie_offset << std::endl;
-
-    pSuffixes = pSuffixes;
-    std::cout << " -- SUFFIXES -- " << std::endl;
-    for (size_t i = 0; i < pHeader->nb_suffixes; i++)
-        std::cout << (pSuffixes[i]) << " ";
-    std::cout << std::endl;
-
-    std::cout << " -- NODES -- " << std::endl;
-    int fact = 0;
-    for (size_t i = 0; i < pHeader->nb_node; i++)
-    {
-        std::cout << "> Node " << pNode[i].no << ":" << std::endl;
-        std::cout << ">> Frequence: " << pNode[i].freq << std::endl;
-        std::cout << ">> Index: " << pNode[i].index << std::endl;
-        std::cout << ">> Longeur: " << pNode[i].length << std::endl;
-        std::cout << ">> Char: " << pNode[i].c << std::endl;
-        std::cout << ">> Is word: " << pNode[i].isWord << std::endl;
-        std::cout << ">> Nombre de fils: " << pNode[i].nbSons << std::endl;
-
-        std::cout << ">> Sons: ";
-        for (int j = 0; j < pNode[i].nbSons; j++)
-            std::cout << pSons[fact + j] << " ";
-        fact += pNode[i].nbSons;
-        std::cout << std::endl << std::endl;;
-    }
-}
-
-
 void Interpreter::loadData(std::string filename)
 {
     struct stat st;
@@ -256,6 +204,4 @@ void Interpreter::loadData(std::string filename)
     pSons = (int*) (pFile + sizeof(Header) + padding + 
             pHeader->nb_suffixes * sizeof(char) + 
             pHeader->nb_node * sizeof(dataNode));
-
-    //    print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }

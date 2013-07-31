@@ -96,17 +96,30 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named compilator
+# Target rules for targets named TextMiningApp
 
 # Build rule for target.
-compilator: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 compilator
-.PHONY : compilator
+TextMiningApp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 TextMiningApp
+.PHONY : TextMiningApp
 
 # fast build rule for target.
-compilator/fast:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/build
-.PHONY : compilator/fast
+TextMiningApp/fast:
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/build
+.PHONY : TextMiningApp/fast
+
+#=============================================================================
+# Target rules for targets named TextMiningCompiler
+
+# Build rule for target.
+TextMiningCompiler: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 TextMiningCompiler
+.PHONY : TextMiningCompiler
+
+# fast build rule for target.
+TextMiningCompiler/fast:
+	$(MAKE) -f CMakeFiles/TextMiningCompiler.dir/build.make CMakeFiles/TextMiningCompiler.dir/build
+.PHONY : TextMiningCompiler/fast
 
 #=============================================================================
 # Target rules for targets named distclean
@@ -134,26 +147,13 @@ doc/fast:
 	$(MAKE) -f CMakeFiles/doc.dir/build.make CMakeFiles/doc.dir/build
 .PHONY : doc/fast
 
-#=============================================================================
-# Target rules for targets named interpreter
-
-# Build rule for target.
-interpreter: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 interpreter
-.PHONY : interpreter
-
-# fast build rule for target.
-interpreter/fast:
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/build
-.PHONY : interpreter/fast
-
 src/compilator/compilator.o: src/compilator/compilator.cpp.o
 .PHONY : src/compilator/compilator.o
 
 # target to build an object file
 src/compilator/compilator.cpp.o:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/compilator.cpp.o
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/compilator/compilator.cpp.o
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/compilator/compilator.cpp.o
+	$(MAKE) -f CMakeFiles/TextMiningCompiler.dir/build.make CMakeFiles/TextMiningCompiler.dir/src/compilator/compilator.cpp.o
 .PHONY : src/compilator/compilator.cpp.o
 
 src/compilator/compilator.i: src/compilator/compilator.cpp.i
@@ -161,8 +161,8 @@ src/compilator/compilator.i: src/compilator/compilator.cpp.i
 
 # target to preprocess a source file
 src/compilator/compilator.cpp.i:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/compilator.cpp.i
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/compilator/compilator.cpp.i
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/compilator/compilator.cpp.i
+	$(MAKE) -f CMakeFiles/TextMiningCompiler.dir/build.make CMakeFiles/TextMiningCompiler.dir/src/compilator/compilator.cpp.i
 .PHONY : src/compilator/compilator.cpp.i
 
 src/compilator/compilator.s: src/compilator/compilator.cpp.s
@@ -170,8 +170,8 @@ src/compilator/compilator.s: src/compilator/compilator.cpp.s
 
 # target to generate assembly for a file
 src/compilator/compilator.cpp.s:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/compilator.cpp.s
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/compilator/compilator.cpp.s
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/compilator/compilator.cpp.s
+	$(MAKE) -f CMakeFiles/TextMiningCompiler.dir/build.make CMakeFiles/TextMiningCompiler.dir/src/compilator/compilator.cpp.s
 .PHONY : src/compilator/compilator.cpp.s
 
 src/compilator/main.o: src/compilator/main.cpp.o
@@ -179,7 +179,7 @@ src/compilator/main.o: src/compilator/main.cpp.o
 
 # target to build an object file
 src/compilator/main.cpp.o:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/main.cpp.o
+	$(MAKE) -f CMakeFiles/TextMiningCompiler.dir/build.make CMakeFiles/TextMiningCompiler.dir/src/compilator/main.cpp.o
 .PHONY : src/compilator/main.cpp.o
 
 src/compilator/main.i: src/compilator/main.cpp.i
@@ -187,7 +187,7 @@ src/compilator/main.i: src/compilator/main.cpp.i
 
 # target to preprocess a source file
 src/compilator/main.cpp.i:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/main.cpp.i
+	$(MAKE) -f CMakeFiles/TextMiningCompiler.dir/build.make CMakeFiles/TextMiningCompiler.dir/src/compilator/main.cpp.i
 .PHONY : src/compilator/main.cpp.i
 
 src/compilator/main.s: src/compilator/main.cpp.s
@@ -195,7 +195,7 @@ src/compilator/main.s: src/compilator/main.cpp.s
 
 # target to generate assembly for a file
 src/compilator/main.cpp.s:
-	$(MAKE) -f CMakeFiles/compilator.dir/build.make CMakeFiles/compilator.dir/src/compilator/main.cpp.s
+	$(MAKE) -f CMakeFiles/TextMiningCompiler.dir/build.make CMakeFiles/TextMiningCompiler.dir/src/compilator/main.cpp.s
 .PHONY : src/compilator/main.cpp.s
 
 src/interpreter/interpreter.o: src/interpreter/interpreter.cpp.o
@@ -203,7 +203,7 @@ src/interpreter/interpreter.o: src/interpreter/interpreter.cpp.o
 
 # target to build an object file
 src/interpreter/interpreter.cpp.o:
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/interpreter/interpreter.cpp.o
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/interpreter/interpreter.cpp.o
 .PHONY : src/interpreter/interpreter.cpp.o
 
 src/interpreter/interpreter.i: src/interpreter/interpreter.cpp.i
@@ -211,7 +211,7 @@ src/interpreter/interpreter.i: src/interpreter/interpreter.cpp.i
 
 # target to preprocess a source file
 src/interpreter/interpreter.cpp.i:
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/interpreter/interpreter.cpp.i
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/interpreter/interpreter.cpp.i
 .PHONY : src/interpreter/interpreter.cpp.i
 
 src/interpreter/interpreter.s: src/interpreter/interpreter.cpp.s
@@ -219,7 +219,7 @@ src/interpreter/interpreter.s: src/interpreter/interpreter.cpp.s
 
 # target to generate assembly for a file
 src/interpreter/interpreter.cpp.s:
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/interpreter/interpreter.cpp.s
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/interpreter/interpreter.cpp.s
 .PHONY : src/interpreter/interpreter.cpp.s
 
 src/interpreter/main.o: src/interpreter/main.cpp.o
@@ -227,7 +227,7 @@ src/interpreter/main.o: src/interpreter/main.cpp.o
 
 # target to build an object file
 src/interpreter/main.cpp.o:
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/interpreter/main.cpp.o
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/interpreter/main.cpp.o
 .PHONY : src/interpreter/main.cpp.o
 
 src/interpreter/main.i: src/interpreter/main.cpp.i
@@ -235,7 +235,7 @@ src/interpreter/main.i: src/interpreter/main.cpp.i
 
 # target to preprocess a source file
 src/interpreter/main.cpp.i:
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/interpreter/main.cpp.i
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/interpreter/main.cpp.i
 .PHONY : src/interpreter/main.cpp.i
 
 src/interpreter/main.s: src/interpreter/main.cpp.s
@@ -243,7 +243,7 @@ src/interpreter/main.s: src/interpreter/main.cpp.s
 
 # target to generate assembly for a file
 src/interpreter/main.cpp.s:
-	$(MAKE) -f CMakeFiles/interpreter.dir/build.make CMakeFiles/interpreter.dir/src/interpreter/main.cpp.s
+	$(MAKE) -f CMakeFiles/TextMiningApp.dir/build.make CMakeFiles/TextMiningApp.dir/src/interpreter/main.cpp.s
 .PHONY : src/interpreter/main.cpp.s
 
 # Help Target
@@ -252,11 +252,11 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... compilator"
+	@echo "... TextMiningApp"
+	@echo "... TextMiningCompiler"
 	@echo "... distclean"
 	@echo "... doc"
 	@echo "... edit_cache"
-	@echo "... interpreter"
 	@echo "... rebuild_cache"
 	@echo "... src/compilator/compilator.o"
 	@echo "... src/compilator/compilator.i"

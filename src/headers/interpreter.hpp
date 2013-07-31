@@ -1,3 +1,10 @@
+/**
+ * \file interpreter.hpp
+ * \brief Structures pour le Patricia Trie
+ * \author Florian Thommains, Victor Degliame
+ * \date 31/07/2013
+ */
+
 #ifndef INTERPRETER_HPP
 # define INTERPRETER_HPP
 

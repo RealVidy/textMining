@@ -1,3 +1,10 @@
+/**
+ * \file main.cpp
+ * \brief TextMiningCompilator main.
+ * \author Florian Thommains, Victor Degliame
+ * \date 31/07/2013
+ */
+
 #include "../headers/patriciatrie.hpp"
 
 int main(int argc, char** argv)

@@ -1,5 +1,8 @@
 /**
- * \file
+ * \file patriciatrie.hpp
+ * \brief Structures pour le Patricia Trie
+ * \author Florian Thommains, Victor Degliame
+ * \date 31/07/2013
  */
 
 #ifndef PATRICIA_TRIE_HPP
@@ -10,6 +13,10 @@
 
 # include "includes.hpp"
 
+/**
+ * \struct Node
+ * \brief Noeud d'un Patricia Trie   
+ */
 struct Node
 {
 typedef std::map<char, Node*> nodeMap;
@@ -27,7 +34,10 @@ typedef std::map<char, Node*> nodeMap;
     ~Node(void);
 };
 
-
+/**
+ * \class ParticiaTrie
+ * \brief Class qui va créer 
+ */
 class PatriciaTrie
 {
 private:
@@ -36,24 +46,47 @@ private:
 private:
     void drawTree(Node * n);
 
+ 
+public:
+    /*
+     * \brief Constructeur qui va sauvgarder le dico
+     * \param f: emplacement du dico
+     */
+    PatriciaTrie(std::string f);
+    /**
+     * \brief Constructeur
+     */
+    PatriciaTrie(void);
+    /*
+     * \brief Destructeur
+     *
+     */
+    ~PatriciaTrie(void);
+
 private:
+    /*
+     * \brief Ajoute un élément dans l'arbre
+     */
     int add(std::string word, int freq, Node* n);
+    /*
+     * \brief Utilisé dans la fonction add, elle permet l'eclatement d'un noeud.
+     */ 
     Node* burstDown(size_t index, size_t i, size_t freq, Node* n);
+    /*
+     * \brief Permet de cerhcer dans l'arbre.
+     */
     void browse(std::string word, Node* n);
 
 public:
-    PatriciaTrie(std::string f);
-    PatriciaTrie(void);
-    ~PatriciaTrie(void);
-
-public:
+    /*
+     *\brief Permet de créer le dico serializé.
+     */
     void compile(std::string filename);
     void print(void);
     Node* root = nullptr;
     std::vector<char> suffixes;
 
 private:
-    // Each node          Vec of Sons   Sons numbers              no    Previous Node
     std::vector<std::pair<std::vector<int>, std::pair<unsigned int, Node*>>> new_trie;
     void deepthFirstSearch(Node *n, int father);
     void printVector();
