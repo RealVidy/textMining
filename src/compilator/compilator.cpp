@@ -68,7 +68,8 @@ Node* PatriciaTrie::burstDown(size_t index, size_t i, size_t freq, Node* n)
 
     newNode = new Node(index, freq, i, n->c);
 
-    n->length -= i + 1;
+    int tmp = (int) n->length - i - 1;
+    n->length = (tmp < 0) ? 0 : tmp;
     n->c = c;
     n->index = index + i + 1;
 
@@ -112,25 +113,28 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
                 t->sons[firstC] = tmp;
 
             std::string leftOver = word.substr(i + 1, word.length() - i - 1);
-
+	    if (leftOver.length() == 0)
+		t->sons[firstC]->isWord = true;
+		
             if (leftOver.length() > 0) // Else we had a duplicate.
                 add(leftOver, freq, tmp);
         }
     }
     else // We create a leaf.
     {
-        t->sons[firstC] = new Node(suffixes.size(), freq, word.length() - 1,
+        t->sons[firstC] = new Node(suffixes.size(), freq, word.length() == 0 ? 0 : word.length() - 1,
                 firstC);
         t->sons[firstC]->isWord = true;
 
         // t->sons[firstC]->print();
 
         //std::cout << word << std::endl;
-        for (std::string::const_iterator it = word.begin() + 1; it != word.end(); ++it)
-        {
-            //std::cout << *it;
-            suffixes.push_back(*it);
-        }
+	if (word.begin() != word.end())
+	    for (std::string::const_iterator it = word.begin() + 1; it != word.end(); ++it)
+	    {
+		//std::cout << *it;
+		suffixes.push_back(*it);
+	    }
         //std::cout << std::endl;
     }
 
@@ -212,7 +216,7 @@ void PatriciaTrie::compile(std::string filename)
     else
     {
 	std::cerr << "Error - Cannot open file: '" << filename;
-	std::cerr << "'" << std::cout;
+	std::cerr << "'" << std::endl;
         exit(-1);
     }
 

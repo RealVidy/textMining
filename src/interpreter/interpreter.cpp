@@ -21,9 +21,18 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
 
     curWord.resize(BUFFER_SIZE);
 
+    //  std::cerr << " -> " << pNode[0].nbSons << std::endl << std::endl;
+
     size_t acu = pNode[0].nbSons;
     for (size_t i = 0; i < pNode[0].nbSons; i++)
+    {
+//	std::cerr << "-> " << pNode[pSons[i]].no << std::endl;
+//	std::cerr << "-> " << pNode[pSons[i]].length << std::endl;
+//	std::cerr << "-> " << pNode[pSons[i]].index << std::endl;
+//	std::cerr << "-> " << pNode[pSons[i]].nbSons << std::endl;
+//	std::cerr << std::endl;
 	getWord(pNode[pSons[i]], curWord, 0, acu);
+    }
 
     std::list<Result>::const_iterator it = results.begin();
     std::cout << "[";
@@ -50,8 +59,8 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
     for (size_t i = 0; i < n.length; ++i)
         curWord[index++] = pSuffixes[n.index + i];
 
-    //std::cout << curWord.substr(0, index) << std::endl;
-
+//    std::cerr << curWord.substr(0, index) << std::endl;
+    //std::cerr << "------------" << acu << " " << n.nbSons << std::endl;
     if (n.isWord)
     {
         unsigned short myDist = distance(word, curWord, index);
@@ -65,19 +74,28 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         std::string tmp = word.substr(0, index);//curWord.length());
         if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
                 tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
+	{
+//	        std::cerr << tmp << " " << curWord.substr(0, index) << std::endl; 
              return;
+	}
      }
     else
     {
         if ((tmpDist = distance(word, curWord, index)) > maxDist &&
                 tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
+	{
+	    //    std::cerr << word << " " << curWord.substr(0, index) << std::endl; 
              return;
+	}
      }
     
+//    std::cerr << curWord.substr(0, index) << std::endl;
+
     size_t tmp = acu;
     acu += n.nbSons;
     for (size_t i = 0; i < n.nbSons; i++)
     {
+	//std::cerr << pSons[i + tmp] << std::endl;
 	getWord(pNode[pSons[i + tmp]], curWord, index, acu);
     }
 }
@@ -144,10 +162,10 @@ void print_extract_data(Header* pHeader, char* pSuffixes,
     std::cout << "> Offset du trie: " << pHeader->trie_offset << std::endl;
 
     pSuffixes = pSuffixes;
-    std::cout << " -- SUFFIXES -- " << std::endl;
-    for (size_t i = 0; i < pHeader->nb_suffixes; i++)
-	std::cout << (pSuffixes[i]) << " ";
-    std::cout << std::endl;
+//    std::cout << " -- SUFFIXES -- " << std::endl;
+//    for (size_t i = 0; i < pHeader->nb_suffixes; i++)
+//	std::cout << (pSuffixes[i]) << " ";
+//    std::cout << std::endl;
 
     std::cout << " -- NODES -- " << std::endl;
     int fact = 0;
