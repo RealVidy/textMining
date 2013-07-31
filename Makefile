@@ -35,14 +35,11 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
-# Escaping for special characters.
-EQUALS = =
-
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/presta/Project/textMining
+CMAKE_SOURCE_DIR = /home/yussak/textMining
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/presta/Project/textMining
+CMAKE_BINARY_DIR = /home/yussak/textMining
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -69,9 +66,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/presta/Project/textMining/CMakeFiles /home/presta/Project/textMining/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yussak/textMining/CMakeFiles /home/yussak/textMining/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/presta/Project/textMining/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yussak/textMining/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

@@ -65,6 +65,8 @@ Questions:
     assurer que les tailles des types de base n'interféraient pas avec notre
     sérialization (et nous avons bien fait car cela plantait pas mal).
 
+    Pour profiler, nous avons utilisé gprof.
+
     Enfin, pour surveiller la RAM, c'était avec les yeux et 'htop' et nous nous
     sommes vite rendu compte que nous n'étions pas particulièrement inquiétés
     par cette contrainte.
@@ -96,7 +98,15 @@ Questions:
 
  6. Comment comptez vous améliorer les performances de votre programme
 
-    
+    Nous n'avons malheureusement pas eu le temps de nous pencher sur
+    l'amélioration des performances.
+    Nous aurions probablement essayé d'améliorer la fonction de calcul de
+    distances qui occupe 80% du temps de notre programme.
+    Peut-être aurions-nous pu aussi optimiser le parcours du patricia trie en
+    regardant l'utilisation du cache.
+
+    La programmation dynamique pourrait aussi être utile au cas où une requête
+    reviendrait souvent. En plus nous avons assez de RAM pour le faire.
 
  7. Que manque-t-il à votre correcteur orthographique pour qu'il soit à l'état de l'art ?
 

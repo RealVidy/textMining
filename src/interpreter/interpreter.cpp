@@ -11,9 +11,7 @@
 
 Interpreter::Interpreter(std::string file)
 {
-    std::cerr << "Loading begin" << std::endl;
     loadData(file);
-    std::cerr << "Loading done" << std::endl;
 }
 
 void Interpreter::getResults(const unsigned short dist, const std::string word)
@@ -51,11 +49,11 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
 void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index, size_t& acu)
 {
     int tmpDist = 0;
-    
+
     if (numBreak > 0)
     {
-	acu += (int) n.no - numBreak - 1;
-	numBreak = 0;
+        acu += (int) n.no - numBreak - 1;
+        numBreak = 0;
     }
 
     curWord[index++] = n.c;
@@ -77,7 +75,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
                 tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
         {
-	    numBreak = n.no;
+            numBreak = n.no;
             return;
         }
     }
@@ -86,7 +84,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(word, curWord, index)) > maxDist &&
                 tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
         {
-	    numBreak = n.no;
+            numBreak = n.no;
             return;
         }
     }
@@ -104,13 +102,10 @@ int Interpreter::distance(const std::string& truncWord, const std::string& curWo
     const int lenStr2 = index;
     int i, j, cost;
 
-    //for loop is inclusive, need table 1 row/column larger than string length.
     for (i = 0; i <= lenStr1; ++i)
         d[i][0] = i;
     for (j = 0; j <= lenStr2; ++j)
         d[0][j] = j;
-    //Pseudo-code assumes string indices start at 1, not 0.
-    //If implemented, make sure to start comparing at 1st letter of strings.
     for (i = 1; i <= lenStr1; ++i)
         for (j = 1; j <= lenStr2; ++j)
         {
