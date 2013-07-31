@@ -5,8 +5,8 @@ project(SPELL_CHECK)
 SET (CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -g -Wall -Werror -Wextra -pedantic")
 SET (CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O3 -march=native -Wall -Werror -Wextra -pedantic")
 
-set(Prg_compiler_name compilator)
-set(Prg_interpreter_name interpreter)
+set(Prg_compiler_name TextMiningCompiler)
+set(Prg_interpreter_name TextMiningApp)
 
 set(Compiler_SOURCES
   src/compilator/main.cpp

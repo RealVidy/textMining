@@ -1,3 +1,10 @@
+/**
+ * \file main.cpp
+ * \brief Main pour TestMiningApp
+ * \author Florian Thommains, Victor Degliame
+ * \date 31/07/2013
+ */
+
 #include "../headers/interpreter.hpp"
 
 int main(int argc, char** argv)
