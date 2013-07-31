@@ -12,6 +12,7 @@ Interpreter::Interpreter(std::string file)
 
 void Interpreter::getResults(const unsigned short dist, const std::string word)
 {
+    numBreak = 0;
     maxDist = dist;
     this->word = word;
 
@@ -53,16 +54,28 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
 void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index, size_t& acu)
 {
     int tmpDist = 0;
+    
+//    std::cerr << acu << " " << numBreak << " " << n.no << std::endl;
+
+    if (numBreak > 0)
+    {
+	if ((int) n.no < numBreak + 1)
+	{
+	    std::cerr << "OH SHIT" << std::endl;
+	}
+	    
+	acu += (int) n.no - numBreak - 1;
+	numBreak = 0;
+    }
 
     curWord[index++] = n.c;
 
-    //std::cerr << n.index << " " << n.freq << " " << n.length << std::endl;
-
+//    std::cerr << "1- "<< curWord.substr(0, index) << " " << n.length << " " << n.no << " " << acu << std::endl;
     for (size_t i = 0; i < n.length; ++i)
         curWord[index++] = pSuffixes[n.index + i];
 
-    //std::cerr << curWord.substr(0, index) << std::endl;
-    //std::cerr << "------------" << acu << " " << n.nbSons << std::endl;
+    //  std::cerr << "2- "<< curWord.substr(0, index) << std::endl;
+
     if (n.isWord)
     {
         unsigned short myDist = distance(word, curWord, index);
@@ -77,7 +90,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
                 tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
         {
-            // std::cerr << tmp << " " << curWord.substr(0, index) << std::endl; 
+	    numBreak = n.no;
             return;
         }
     }
@@ -86,20 +99,16 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(word, curWord, index)) > maxDist &&
                 tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
         {
-            // std::cerr << word << " " << curWord.substr(0, index) << std::endl; 
+	    numBreak = n.no;
             return;
         }
     }
 
-    //    std::cerr << curWord.substr(0, index) << std::endl;
-
     size_t tmp = acu;
     acu += n.nbSons;
+
     for (int i = 0; i < n.nbSons; i++)
-    {
-        //std::cerr << pSons[i + tmp] << " =? " << pNode[pSons[i + tmp]].no << std::endl;
         getWord(pNode[pSons[i + tmp]], curWord, index, acu);
-    }
 }
 
 int Interpreter::distance(const std::string& truncWord, const std::string& curWord, const size_t index)
@@ -232,7 +241,7 @@ void Interpreter::loadData(std::string filename)
     }
 
     pFile = (unsigned char*) mmap(0, filesize,
-            PROT_READ, MAP_SHARED, fd, 0);
+            PROT_READ, MAP_STACK | MAP_SHARED | MAP_POPULATE, fd, 0);
 
     if (pFile == MAP_FAILED)
     {
@@ -249,5 +258,5 @@ void Interpreter::loadData(std::string filename)
             pHeader->nb_suffixes * sizeof(char) + 
             pHeader->nb_node * sizeof(dataNode));
 
-    print_extract_data(pHeader, pSuffixes, pNode, pSons);
+//    print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }

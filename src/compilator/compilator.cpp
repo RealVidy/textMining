@@ -224,7 +224,6 @@ void PatriciaTrie::compile(std::string filename)
 
     // Transform the patricia trie
     deepthFirstSearch(root, -1);
-    printVector();
     // Header
     IntOctets n;
 
@@ -334,12 +333,4 @@ void PatriciaTrie::compile(std::string filename)
 
     fclose(fichier);
     std::cout << "-- Compilation over" << std::endl;
-
-    drawTree(root);
-}
-
-int cc = 0;
-void PatriciaTrie::drawTree(Node* n)
-{
-    n = n;
 }

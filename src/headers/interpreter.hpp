@@ -41,6 +41,7 @@ class Result
 class Interpreter
 {
 private:
+    int numBreak;
     Header* pHeader;
     char* pSuffixes;
     dataNode* pNode;
