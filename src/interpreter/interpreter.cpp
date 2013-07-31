@@ -245,9 +245,8 @@ void Interpreter::loadData(std::string filename)
     pSuffixes = (char*) (pFile + pHeader->suffixes_offset);
     pNode = (dataNode*) (pFile + pHeader->trie_offset);
     size_t padding = (pHeader->nb_suffixes % 4) == 0 ? 0 : 4 - (pHeader->nb_suffixes % 4);
-    pSons = (unsigned int*) (pFile + sizeof(Header) + padding + 
-            pHeader->nb_suffixes * sizeof(char) + 
-            pHeader->nb_node * sizeof(dataNode));
+    pSons = (int*) (pFile + (int) sizeof(Header) + padding + (int) (pHeader->nb_suffixes * sizeof(char)) 
+		    + ((int) pHeader->nb_node * sizeof(dataNode)));
 
-    print_extract_data(pHeader, pSuffixes, pNode, pSons);
+    //print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }
