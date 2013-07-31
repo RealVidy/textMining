@@ -14,21 +14,22 @@ int main(int argc, char** argv)
 
     std::string file;
     std::string drop;
-//    int distance;
+    int distance;
     std::string word;
 
-    if (argc == 2)
+    if (argc >= 2)
         file = std::string(argv[1]);
     else
         file = std::string("dico.bin");
 
     Interpreter* inter = new Interpreter(file);
 
-    inter->loadData(file);
+    //ProfilerStart("myProf.prof");
+    
+    while (std::cin >> drop >> distance >> word)
+        inter->getResults(distance, word);
 
-
-//    while (std::cin >> drop >> distance >> word)
-//        inter->getResults(distance, word);
+    //ProfilerStop();
 
     delete inter;
 }

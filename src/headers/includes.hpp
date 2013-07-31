@@ -17,7 +17,6 @@
 # include <unistd.h>
 
 # include <assert.h>
-# include <zlib.h>
 # include <stdio.h>
 # include <fcntl.h>
 
@@ -26,11 +25,6 @@
 # include <sys/mman.h>
 # include <sys/types.h>
 # include <sys/stat.h>
-
-# include <boost/archive/binary_iarchive.hpp>
-# include <boost/archive/binary_oarchive.hpp>
-# include <boost/serialization/map.hpp>
-# include <boost/serialization/vector.hpp> 
 
 # define HEADER_SIZE (16)
 

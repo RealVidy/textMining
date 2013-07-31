@@ -1,3 +1,8 @@
-cou 4
-coucou 10
-cocu 5
+cou 5
+ouc 3
+cuo 5
+cca 42
+avec 4
+haha 6
+courir 8
+pointer 10

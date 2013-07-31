@@ -2,33 +2,31 @@
 
 #define MIN(a, b)(a < b ? a : b)
 #define MAX(a, b)(a > b ? a : b)
-#define ABS(a)(a < 0 ? -a : a)
 
-Interpreter::Interpreter(std::string file) : filename (file)
+Interpreter::Interpreter(std::string file)
 {
-/*    std::ifstream istream(file);
-    boost::archive::binary_iarchive iar(istream);
-
-    iar >> this->p;
-
+    std::cerr << "Loading begin" << std::endl;
+    loadData(file);
     std::cerr << "Loading done" << std::endl;
-
-    istream.close();*/
 }
 
-void Interpreter::getResults(unsigned short distance, std::string word)
+void Interpreter::getResults(const unsigned short dist, const std::string word)
 {
-    maxDist = distance;
+    maxDist = dist;
     this->word = word;
 
-    for (Node::nodeMap::iterator it = this->p->root->sons.begin();
-            it != this->p->root->sons.end();
-            ++it)
-        getWord(it->second, "");
+    results.clear();
 
-    std::list<Result>::iterator it = results.begin();
+    std::string curWord("");
+
+    curWord.resize(BUFFER_SIZE);
+
+    size_t acu = pNode[0].nbSons;
+    for (size_t i = 0; i < pNode[0].nbSons; i++)
+	getWord(pNode[pSons[i]], curWord, 0, acu);
+
+    std::list<Result>::const_iterator it = results.begin();
     std::cout << "[";
-
 
     for (size_t i = results.size(); i > 1; ++it, --i)
     {
@@ -43,21 +41,52 @@ void Interpreter::getResults(unsigned short distance, std::string word)
     std::cout << "]" << std::endl;
 }
 
-int minimum(int a, int b, int c)
+void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index, size_t& acu)
 {
-    return MIN(a, MIN(b, c));
+    int tmpDist = 0;
+
+    curWord[index++] = n.c;
+
+    for (size_t i = 0; i < n.length; ++i)
+        curWord[index++] = pSuffixes[n.index + i];
+
+    //std::cout << curWord.substr(0, index) << std::endl;
+
+    if (n.isWord)
+    {
+        unsigned short myDist = distance(word, curWord, index);
+        if (myDist <= maxDist)
+            insertionSort(curWord, myDist, n.freq, index);
+    }
+
+    if (word.length() > index)//curWord.length())
+    {
+        // Prefix already too far?
+        std::string tmp = word.substr(0, index);//curWord.length());
+        if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
+                tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
+             return;
+     }
+    else
+    {
+        if ((tmpDist = distance(word, curWord, index)) > maxDist &&
+                tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
+             return;
+     }
+    
+    size_t tmp = acu;
+    acu += n.nbSons;
+    for (size_t i = 0; i < n.nbSons; i++)
+    {
+	getWord(pNode[pSons[i + tmp]], curWord, index, acu);
+    }
 }
 
-int Interpreter::distance(std::string& truncWord, std::string& curWord)
+int Interpreter::distance(const std::string& truncWord, const std::string& curWord, const size_t index)
 {
-    int lenStr1 = truncWord.length();
-    int lenStr2 = curWord.length();
+    const int lenStr1 = truncWord.length();
+    const int lenStr2 = index;
     int i, j, cost;
-
-    int **d = new int*[lenStr1 + 1];
-
-    for(int k = 0; k <= lenStr1; ++k)
-        d[k] = new int[lenStr2 + 1];
 
     //for loop is inclusive, need table 1 row/column larger than string length.
     for (i = 0; i <= lenStr1; ++i)
@@ -74,9 +103,9 @@ int Interpreter::distance(std::string& truncWord, std::string& curWord)
             else
                 cost = 1;
 
-            d[i][j] = minimum(d[i-1][j] + 1, // deletion
-                    d[i][j-1] + 1,     // insertion
-                    d[i-1][j-1] + cost);   // substitution
+            d[i][j] = MIN(d[i-1][j] + 1, // deletion
+                    MIN(d[i][j-1] + 1,     // insertion
+                        d[i-1][j-1] + cost));   // substitution
 
             if(i > 1 && j > 1 && truncWord[i - 1] == curWord[j-2] && truncWord[i-2] == curWord[j - 1])
                 d[i][j] = MIN(d[i][j], d[i-2][j-2] + cost);  // transposition
@@ -84,50 +113,17 @@ int Interpreter::distance(std::string& truncWord, std::string& curWord)
 
     int result = d[lenStr1][lenStr2];
 
-    for (int i = 0; i <= lenStr1; ++i)
-        delete[] d[i];
-    delete[] d;
     return result;
 }
 
-void Interpreter::getWord(Node* n, std::string curWord)
-{
-    /*
-       if (ABS((int)word.length() - (int)curWord.length()) > maxDist)
-       return;
-       */
-    curWord += n->c;
-
-    for (size_t i = 0; i < n->length; ++i)
-        curWord += p->suffixes[n->index + i];
-
-    if (n->isWord)
-    {
-        unsigned short myDist = distance(word, curWord);
-        if (myDist <= maxDist)
-            insertionSort(curWord, myDist, n->freq);
-    }
-    if (word.length() > curWord.length())
-    {
-        // Prefix already too far?
-        std::string tmp = word.substr(0, curWord.length());
-        //std::cout << tmp << std::endl;
-        if (distance(tmp, curWord) > maxDist)
-            return;
-    }
-
-    for (Node::nodeMap::iterator it = n->sons.begin();
-            it != n->sons.end();
-            ++it)
-        getWord(it->second, curWord);
-}
-
-void Interpreter::insertionSort(std::string& word, unsigned short distance, size_t freq)
+void Interpreter::insertionSort(std::string myWord,
+        const unsigned short distance, const size_t freq, const size_t index)
 {
     std::list<Result>::iterator it = results.begin();
-    Result newRes(word, distance, freq);
+    myWord.resize(index);
+    Result newRes(myWord, distance, freq);
 
-    for (; newRes != *it && *it < newRes && it != results.end(); ++it);
+    for (; it != results.end() && newRes != *it && *it < newRes ; ++it);
 
     if (it != results.end() && newRes == *it)
     {
@@ -171,7 +167,32 @@ void print_extract_data(Header* pHeader, char* pSuffixes,
 	fact += pNode[i].nbSons;
 	std::cout << std::endl << std::endl;;
     }
-pSons = pSons;
+}
+
+int Interpreter::LCS(const std::string& str1, const std::string& str2,
+        const size_t index, const size_t limit)
+{
+    size_t res;
+    size_t k;
+
+    for (size_t i = 0; i < str1.length(); ++i)
+    {
+        res = 0;
+        k = i;
+
+        for (size_t j = 0; j < index && k < str1.length(); ++j)
+        {
+            if (str1[k] == str2[j])
+            {
+                ++res;
+                ++k;
+            }
+            if (res >= limit)
+                return res;
+        }
+    }
+
+    return 0;
 }
 
 void Interpreter::loadData(std::string filename)
@@ -188,7 +209,6 @@ void Interpreter::loadData(std::string filename)
 	exit(EXIT_FAILURE);
     }
 
-    filesize = lseek(fd, 0, SEEK_END);
     pFile = (unsigned char*)  mmap(0, filesize,
 				   PROT_READ,
 				   MAP_SHARED, fd, 0);
@@ -199,19 +219,13 @@ void Interpreter::loadData(std::string filename)
 	exit(EXIT_FAILURE);
     }
 
-    Header* pHeader = (Header*) pFile;
-    char* pSuffixes = (char*) (pFile + pHeader->suffixes_offset);
-    dataNode* pNode = (dataNode*) (pFile + pHeader->trie_offset);
+    pHeader = (Header*) pFile;
+    pSuffixes = (char*) (pFile + pHeader->suffixes_offset);
+    pNode = (dataNode*) (pFile + pHeader->trie_offset);
     size_t padding = (pHeader->nb_suffixes % 4) == 0 ? 0 : 4 - (pHeader->nb_suffixes % 4);
-    size_t* pSons = (size_t*) (pFile + sizeof(Header) + padding + 
+    pSons = (size_t*) (pFile + sizeof(Header) + padding + 
 			       pHeader->nb_suffixes * sizeof(char) + 
 			       pHeader->nb_node * sizeof(dataNode));
 
-    std::cout << (&pNode[1]) << std::endl;
-
-    pNode = pNode;
-    pSons = pSons;
-    pSuffixes= pSuffixes;
-    pHeader= pHeader;
-    print_extract_data(pHeader, pSuffixes, pNode, pSons); 
+//    print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }

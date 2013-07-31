@@ -137,49 +137,15 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
     return 0;
 }
 
-int PatriciaTrie::compile(void)
-{
-    std::ifstream file(filename, std::ios::in);
-
-    if (file)
-    {
-        std::string line;
-
-        // Read file
-        while (std::getline(file, line))
-        {
-            std::string word;
-            int freq;
-            std::istringstream ss(line);
-
-            // Get word and frequency for this line
-            ss >> word >> freq;
-            //std::cout << word << std::endl;
-
-            std::transform(word.begin(), word.end(), word.begin(), ::tolower);
-            add(word, freq, this->root);
-        }
-
-        file.close();
-    }
-    else
-    {
-        std::cerr << "Error - Cannot open file: '" << filename;
-        std::cerr << "'" << std::cout;
-        return -1;
-    }
-    return 0;
-}
-
 int nodeNum = 0;
 void PatriciaTrie::deepthFirstSearch(Node* n, int father)
 {
-    std::vector<int> tmp;
+    std::vector<unsigned short> tmp;
 
     if (n != root)
     {
 	for (size_t i = 0; i < new_trie[father].first.size(); i++)
-	    if (new_trie[father].first[i] == -1)
+	    if (new_trie[father].first[i] == 1000)
 	    {
 		new_trie[father].first[i] = nodeNum;
 		break;
@@ -187,10 +153,10 @@ void PatriciaTrie::deepthFirstSearch(Node* n, int father)
     }
 
     if (n->sons.size() == 0)
-	tmp.push_back(-2);
+	tmp.push_back(1001);
     else
 	for (size_t i = 0; i < n->sons.size(); i++)
-	    tmp.push_back(-1);
+	    tmp.push_back(1000);
 
 
     new_trie.push_back(std::make_pair(tmp, std::make_pair(nodeNum, n)));
@@ -218,8 +184,38 @@ void PatriciaTrie::printVector()
     }
 }
 
-void PatriciaTrie::createRawFile(std::string filename)
+void PatriciaTrie::compile(std::string filename)
 {
+    std::ifstream file(this->filename, std::ios::in);
+
+    if (file)
+    {
+	std::string line;
+
+        // Read file
+        while (std::getline(file, line))
+        {
+	    std::string word;
+            int freq;
+	    std::istringstream ss(line);
+
+            // Get word and frequency for this line
+            ss >> word >> freq;
+            //std::cout << word << std::endl;
+
+	    std::transform(word.begin(), word.end(), word.begin(), ::tolower);
+            add(word, freq, this->root);
+        }
+
+        file.close();
+    }
+    else
+    {
+	std::cerr << "Error - Cannot open file: '" << filename;
+	std::cerr << "'" << std::cout;
+        exit(-1);
+    }
+
     std::string buff;
 
     // Transform the patricia trie
@@ -292,8 +288,15 @@ void PatriciaTrie::createRawFile(std::string filename)
 
 	buff.push_back(new_trie[i].second.second->isWord);
 
-	n2.i = new_trie[i].first.size();
-	std::cout << n2.i << std::endl;
+	if (new_trie[i].first.size() == 1)
+	{
+	    if (new_trie[i].first[0] == 1001)
+		n2.i = 0;
+	    else
+		n2.i = 1;
+	}
+	else
+	    n2.i = new_trie[i].first.size();
 	buff.push_back(n2.a[0]);
 	buff.push_back(n2.a[1]);
     }
@@ -301,22 +304,23 @@ void PatriciaTrie::createRawFile(std::string filename)
     for (size_t i = 0; i < new_trie.size(); i++)    
 	for (size_t j = 0; j < new_trie[i].first.size(); j++)
 	{
-	    if (new_trie[i].first[j] != -2)
+	    if (new_trie[i].first[j] != 1001)
+	    {
 		n.i =  new_trie[i].first[j];
-	    else
-		n.i = 0;
-	    buff.push_back(n.a[0]);
-	    buff.push_back(n.a[1]);
-	    buff.push_back(n.a[2]);
-	    buff.push_back(n.a[3]);
+		buff.push_back(n.a[0]);
+		buff.push_back(n.a[1]);
+		buff.push_back(n.a[2]);
+		buff.push_back(n.a[3]);
+	    }
 	}   
 
     if (access(filename.c_str(), F_OK) != -1 )
 	remove(filename.c_str());
 
     FILE * fichier = fopen(filename.c_str() , "a+");    
-    
+
     fwrite(buff.c_str(), sizeof(char), buff.length(), fichier);
 
     fclose(fichier);
+    std::cout << "-- Compilation over" << std::endl;
 }

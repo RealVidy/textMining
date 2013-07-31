@@ -24,8 +24,7 @@ int main(int argc, char** argv)
 
     PatriciaTrie *p = new PatriciaTrie(file);
 
-    p->compile();
-    p->createRawFile(out);
+    p->compile(out);
 
     delete(p);
 
