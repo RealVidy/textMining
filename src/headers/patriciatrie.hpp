@@ -82,7 +82,7 @@ private:
 private:
     std::vector<std::pair<std::vector<int>, std::pair<int, Node*>>> new_trie;
     void deepthFirstSearch(Node *n, int father);
-
+    void printVector();
 public:
     void createRawFile(std::string filename);
 

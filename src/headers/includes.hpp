@@ -32,6 +32,8 @@
 # include <boost/serialization/map.hpp>
 # include <boost/serialization/vector.hpp> 
 
+# define HEADER_SIZE (16)
+
 union IntOctets
 {
     int i;
@@ -50,14 +52,25 @@ union ShortOctets
     char a[2];
 };
 
+struct Header
+{
+    size_t nb_suffixes;
+    size_t suffixes_offset;
+    size_t nb_node;
+    size_t trie_offset;
+};
+
 struct dataNode
 {
+    size_t no;
     size_t index;
     size_t freq;
     unsigned short length;
+    char v1;
+    char v2;
     char c;
     bool isWord;
-    size_t nbSons;
+    unsigned short  nbSons;
 } __attribute__((packed));
 
 #endif

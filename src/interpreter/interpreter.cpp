@@ -6,14 +6,14 @@
 
 Interpreter::Interpreter(std::string file) : filename (file)
 {
-    std::ifstream istream(file);
+/*    std::ifstream istream(file);
     boost::archive::binary_iarchive iar(istream);
 
     iar >> this->p;
 
     std::cerr << "Loading done" << std::endl;
 
-    istream.close();
+    istream.close();*/
 }
 
 void Interpreter::getResults(unsigned short distance, std::string word)
@@ -138,137 +138,80 @@ void Interpreter::insertionSort(std::string& word, unsigned short distance, size
         results.insert(it, newRes);
 }
 
-int Interpreter::decompress(FILE* source, FILE* dest)
+void print_extract_data(Header* pHeader, char* pSuffixes,
+		   dataNode* pNode,size_t* pSons)
 {
-    int ret;
-    unsigned have;
-    z_stream strm;
-    unsigned char in[CHUNK];
-    unsigned char out[CHUNK];
+    std::cout << " -- HEADER -- " << std::endl;
+    std::cout << "> Nombre de suffixes: " << pHeader->nb_suffixes << std::endl;
+    std::cout << "> Offset des suffixes: " << pHeader->suffixes_offset << std::endl;
+    std::cout << "> Nombre de node: " << pHeader->nb_node << std::endl;
+    std::cout << "> Offset du trie: " << pHeader->trie_offset << std::endl;
 
-    /* allocate inflate state */
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = 0;
-    strm.next_in = Z_NULL;
-    ret = inflateInit(&strm);
-    if (ret != Z_OK)
-        return ret;
+    pSuffixes = pSuffixes;
+    std::cout << " -- SUFFIXES -- " << std::endl;
+    for (size_t i = 0; i < pHeader->nb_suffixes; i++)
+	std::cout << (pSuffixes[i]) << " ";
+    std::cout << std::endl;
 
-    /* decompress until deflate stream ends or end of file */
-    do {
-        strm.avail_in = fread(in, 1, CHUNK, source);
-        if (ferror(source)) {
-            (void)inflateEnd(&strm);
-            return Z_ERRNO;
-        }
-        if (strm.avail_in == 0)
-            break;
-        strm.next_in = in;
+    std::cout << " -- NODES -- " << std::endl;
+    int fact = 0;
+    for (size_t i = 0; i < pHeader->nb_node; i++)
+    {
+	std::cout << "> Node " << pNode[i].no << ":" << std::endl;
+	std::cout << ">> Frequence: " << pNode[i].freq << std::endl;
+	std::cout << ">> Index: " << pNode[i].index << std::endl;
+	std::cout << ">> Longeur: " << pNode[i].length << std::endl;
+	std::cout << ">> Char: " << pNode[i].c << std::endl;
+	std::cout << ">> Is word: " << pNode[i].isWord << std::endl;
+	std::cout << ">> Nombre de fils: " << pNode[i].nbSons << std::endl;
 
-        /* run inflate() on input until output buffer not full */
-        do {
-            strm.avail_out = CHUNK;
-            strm.next_out = out;
-            ret = inflate(&strm, Z_NO_FLUSH);
-            assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            switch (ret) {
-                case Z_NEED_DICT:
-                    ret = Z_DATA_ERROR;     /* and fall through */
-                case Z_DATA_ERROR:
-                case Z_MEM_ERROR:
-                    (void)inflateEnd(&strm);
-                    return ret;
-            }
-            have = CHUNK - strm.avail_out;
-            if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
-                (void)inflateEnd(&strm);
-                return Z_ERRNO;
-            }
-        } while (strm.avail_out == 0);
-
-        /* done when inflate() says it's done */
-    } while (ret != Z_STREAM_END);
-
-    /* clean up and return */
-    (void)inflateEnd(&strm);
-    return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+	std::cout << ">> Sons: ";
+	for (size_t j = 0; j < pNode[i].nbSons; j++)
+	    std::cout << pSons[fact + j] << " ";
+	fact += pNode[i].nbSons;
+	std::cout << std::endl << std::endl;;
+    }
+pSons = pSons;
 }
 
 void Interpreter::loadData(std::string filename)
 {
-    int nul = 0;
-
-/*
     struct stat st;
     stat(filename.c_str(), &st);
-    size_t map_size = st.st_size;
-*/
-    /*
-       FILE* in = fopen(filename.c_str(), "r+");
-       std::string file_uncompress = filename + "_uncompress";
-       FILE* out = fopen(file_uncompress.c_str(), "r+");
+    int filesize = st.st_size;
+    int fd = -1;
+    unsigned char* pFile = NULL;
 
-       decompress(in, out);
-    */
-
-
-    int fd = open(filename.c_str(), O_RDONLY);
-    if (fd == -1)
-    {
-        std::cerr << "Error opening file for reading" << std::endl;
-        exit(-1);
+    fd = open(filename.c_str(), O_RDONLY);
+    if (fd == -1) {
+	perror("Error opening file for reading");
+	exit(EXIT_FAILURE);
     }
 
-    // Get metadata
-    size_t metadata[3];;
+    filesize = lseek(fd, 0, SEEK_END);
+    pFile = (unsigned char*)  mmap(0, filesize,
+				   PROT_READ,
+				   MAP_SHARED, fd, 0);
+    if (pFile == MAP_FAILED)
+    {
+	close(fd);
+	perror("Error mmapping the file");
+	exit(EXIT_FAILURE);
+    }
 
-    nul = read(fd, metadata, sizeof(size_t) * 3);
+    Header* pHeader = (Header*) pFile;
+    char* pSuffixes = (char*) (pFile + pHeader->suffixes_offset);
+    dataNode* pNode = (dataNode*) (pFile + pHeader->trie_offset);
+    size_t padding = (pHeader->nb_suffixes % 4) == 0 ? 0 : 4 - (pHeader->nb_suffixes % 4);
+    size_t* pSons = (size_t*) (pFile + sizeof(Header) + padding + 
+			       pHeader->nb_suffixes * sizeof(char) + 
+			       pHeader->nb_node * sizeof(dataNode));
 
-    // Print metadata
-    // 1: taille des suffixes
-    // 2: offset des suffixes
-    // 3: offset root trie
-    std::cout << " -- METADATA -- " << std::endl;
-    for (size_t i : metadata)
-	std::cout << "> " << i << std::endl;
+    std::cout << (&pNode[1]) << std::endl;
 
-    // Get Suffixes
-    char *suffixies = (char*) malloc(sizeof(char) * metadata[0]);
-
-    nul = lseek(fd, metadata[1], SEEK_SET);
-    std::cout << "SEEK_CUR: " << nul << std::endl;
-
-    nul = read(fd, suffixies, metadata[0]);
-
-    std::cout << " -- SUFFIXIES -- " << std::endl;
-    for (size_t i = 0; i < metadata[0]; i++)
-	std::cout << *(suffixies + i) << " ";
-    std::cout << std::endl;
-
-    // Get root
-    dataNode* root = (dataNode*) malloc(sizeof(dataNode));
-
-    //nul = fseek(file, , SEEK_CUR);
-    std::cout <<"SEEK_CUR: " << lseek(fd, 41, SEEK_SET) << std::endl;
-    nul = read(fd, root, sizeof(dataNode));
-
-    std::cout << " -- ROOT -- " << std::endl;
-    std::cout << "> Index: " << root->index << std::endl;
-    std::cout << "> Frequence: " << root->freq << std::endl;
-    std::cout << "> Length: " << root->length << std::endl;
-    std::cout << "> Char: " << root->c << std::endl;
-    std::cout << "> Is word: " << root->isWord << std::endl;
-    std::cout << "> Nb suns: " << root->nbSons << std::endl;
-
-    // Clear memmory
-
-
-    // To supress unused error
-    nul = nul;
-
-    free(suffixies);
-    free(root);
-    close(fd);
+    pNode = pNode;
+    pSons = pSons;
+    pSuffixes= pSuffixes;
+    pHeader= pHeader;
+    print_extract_data(pHeader, pSuffixes, pNode, pSons); 
 }
