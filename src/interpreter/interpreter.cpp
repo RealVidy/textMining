@@ -54,23 +54,23 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
 void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index, size_t& acu)
 {
     int tmpDist = 0;
-    
-//    std::cerr << acu << " " << numBreak << " " << n.no << std::endl;
+
+    //    std::cerr << acu << " " << numBreak << " " << n.no << std::endl;
 
     if (numBreak > 0)
     {
-	if ((int) n.no < numBreak + 1)
-	{
-	    std::cerr << "OH SHIT" << std::endl;
-	}
-	    
-	acu += (int) n.no - numBreak - 1;
-	numBreak = 0;
+        if ((int) n.no < numBreak + 1)
+        {
+            std::cerr << "OH SHIT" << std::endl;
+        }
+
+        acu += (int) n.no - numBreak - 1;
+        numBreak = 0;
     }
 
     curWord[index++] = n.c;
 
-//    std::cerr << "1- "<< curWord.substr(0, index) << " " << n.length << " " << n.no << " " << acu << std::endl;
+    //    std::cerr << "1- "<< curWord.substr(0, index) << " " << n.length << " " << n.no << " " << acu << std::endl;
     for (size_t i = 0; i < n.length; ++i)
         curWord[index++] = pSuffixes[n.index + i];
 
@@ -90,7 +90,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
                 tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
         {
-	    numBreak = n.no;
+            numBreak = n.no;
             return;
         }
     }
@@ -99,7 +99,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(word, curWord, index)) > maxDist &&
                 tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
         {
-	    numBreak = n.no;
+            numBreak = n.no;
             return;
         }
     }
@@ -122,8 +122,6 @@ int Interpreter::distance(const std::string& truncWord, const std::string& curWo
         d[i][0] = i;
     for (j = 0; j <= lenStr2; ++j)
         d[0][j] = j;
-    //Pseudo-code assumes string indices start at 1, not 0.
-    //If implemented, make sure to start comparing at 1st letter of strings.
     for (i = 1; i <= lenStr1; ++i)
         for (j = 1; j <= lenStr2; ++j)
         {
@@ -164,41 +162,6 @@ void Interpreter::insertionSort(std::string myWord,
         results.insert(it, newRes);
 }
 
-void print_extract_data(Header* pHeader, char* pSuffixes,
-        dataNode* pNode, int* pSons)
-{
-    std::cout << " -- HEADER -- " << std::endl;
-    std::cout << "> Nombre de suffixes: " << pHeader->nb_suffixes << std::endl;
-    std::cout << "> Offset des suffixes: " << pHeader->suffixes_offset << std::endl;
-    std::cout << "> Nombre de node: " << pHeader->nb_node << std::endl;
-    std::cout << "> Offset du trie: " << pHeader->trie_offset << std::endl;
-
-    pSuffixes = pSuffixes;
-        std::cout << " -- SUFFIXES -- " << std::endl;
-        for (size_t i = 0; i < pHeader->nb_suffixes; i++)
-    	std::cout << (pSuffixes[i]) << " ";
-        std::cout << std::endl;
-
-    std::cout << " -- NODES -- " << std::endl;
-    int fact = 0;
-    for (size_t i = 0; i < pHeader->nb_node; i++)
-    {
-        std::cout << "> Node " << pNode[i].no << ":" << std::endl;
-        std::cout << ">> Frequence: " << pNode[i].freq << std::endl;
-        std::cout << ">> Index: " << pNode[i].index << std::endl;
-        std::cout << ">> Longeur: " << pNode[i].length << std::endl;
-        std::cout << ">> Char: " << pNode[i].c << std::endl;
-        std::cout << ">> Is word: " << pNode[i].isWord << std::endl;
-        std::cout << ">> Nombre de fils: " << pNode[i].nbSons << std::endl;
-
-        std::cout << ">> Sons: ";
-        for (int j = 0; j < pNode[i].nbSons; j++)
-            std::cout << pSons[fact + j] << " ";
-        fact += pNode[i].nbSons;
-        std::cout << std::endl << std::endl;;
-    }
-}
-
 int Interpreter::LCS(const std::string& str1, const std::string& str2,
         const size_t index, const size_t limit)
 {
@@ -224,6 +187,42 @@ int Interpreter::LCS(const std::string& str1, const std::string& str2,
 
     return 0;
 }
+
+void print_extract_data(Header* pHeader, char* pSuffixes,
+        dataNode* pNode, int* pSons)
+{
+    std::cout << " -- HEADER -- " << std::endl;
+    std::cout << "> Nombre de suffixes: " << pHeader->nb_suffixes << std::endl;
+    std::cout << "> Offset des suffixes: " << pHeader->suffixes_offset << std::endl;
+    std::cout << "> Nombre de node: " << pHeader->nb_node << std::endl;
+    std::cout << "> Offset du trie: " << pHeader->trie_offset << std::endl;
+
+    pSuffixes = pSuffixes;
+    std::cout << " -- SUFFIXES -- " << std::endl;
+    for (size_t i = 0; i < pHeader->nb_suffixes; i++)
+        std::cout << (pSuffixes[i]) << " ";
+    std::cout << std::endl;
+
+    std::cout << " -- NODES -- " << std::endl;
+    int fact = 0;
+    for (size_t i = 0; i < pHeader->nb_node; i++)
+    {
+        std::cout << "> Node " << pNode[i].no << ":" << std::endl;
+        std::cout << ">> Frequence: " << pNode[i].freq << std::endl;
+        std::cout << ">> Index: " << pNode[i].index << std::endl;
+        std::cout << ">> Longeur: " << pNode[i].length << std::endl;
+        std::cout << ">> Char: " << pNode[i].c << std::endl;
+        std::cout << ">> Is word: " << pNode[i].isWord << std::endl;
+        std::cout << ">> Nombre de fils: " << pNode[i].nbSons << std::endl;
+
+        std::cout << ">> Sons: ";
+        for (int j = 0; j < pNode[i].nbSons; j++)
+            std::cout << pSons[fact + j] << " ";
+        fact += pNode[i].nbSons;
+        std::cout << std::endl << std::endl;;
+    }
+}
+
 
 void Interpreter::loadData(std::string filename)
 {
@@ -258,5 +257,5 @@ void Interpreter::loadData(std::string filename)
             pHeader->nb_suffixes * sizeof(char) + 
             pHeader->nb_node * sizeof(dataNode));
 
-//    print_extract_data(pHeader, pSuffixes, pNode, pSons);
+    //    print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }

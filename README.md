@@ -33,6 +33,8 @@ Questions:
     assurer que les tailles des types de base n'interféraient pas avec notre
     sérialization (et nous avons bien fait car cela plantait pas mal).
 
+    Pour profiler, nous avons utilisé gprof.
+
     Enfin, pour surveiller la RAM, c'était avec les yeux et 'htop' et nous nous
     sommes vite rendu compte que nous n'étions pas particulièrement inquiétés
     par cette contrainte.
