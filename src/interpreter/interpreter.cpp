@@ -68,12 +68,12 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
             insertionSort(curWord, myDist, n.freq, index);
     }
 
-    if (word.length() > index)//curWord.length())
+    if (word.length() > index)
     {
         // Prefix already too far?
-        std::string tmp = word.substr(0, index);//curWord.length());
+        std::string tmp = word.substr(0, index);
         if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
-                tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
+                (tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist)) > maxDist)
         {
             numBreak = n.no;
             return;
@@ -82,7 +82,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
     else
     {
         if ((tmpDist = distance(word, curWord, index)) > maxDist &&
-                tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
+                (tmpDist - LCS(word, curWord, index, tmpDist - maxDist)) > maxDist)
         {
             numBreak = n.no;
             return;
@@ -109,16 +109,11 @@ int Interpreter::distance(const std::string& truncWord, const std::string& curWo
     for (i = 1; i <= lenStr1; ++i)
         for (j = 1; j <= lenStr2; ++j)
         {
-            if (truncWord[i - 1] == curWord[j - 1])
-                cost = 0;
-            else
-                cost = 1;
+            cost = truncWord[i - 1] == curWord[j - 1] ? 0 : 1;
 
-            d[i][j] = MIN(d[i-1][j] + 1, // deletion
-                    MIN(d[i][j-1] + 1,     // insertion
-                        d[i-1][j-1] + cost));   // substitution
+            d[i][j] = MIN(d[i-1][j] + 1, MIN(d[i][j-1] + 1, d[i-1][j-1] + cost));
 
-            if(i > 1 && j > 1 && truncWord[i - 1] == curWord[j-2] && truncWord[i-2] == curWord[j - 1])
+            if (i > 1 && j > 1 && truncWord[i - 1] == curWord[j-2] && truncWord[i-2] == curWord[j - 1])
                 d[i][j] = MIN(d[i][j], d[i-2][j-2] + cost);  // transposition
         }
 
@@ -135,7 +130,7 @@ void Interpreter::insertionSort(std::string myWord,
 
     Result newRes(myWord, distance, freq);
 
-    for (; it != results.end() && newRes != *it && *it < newRes; ++it);
+    for (; it != results.end() && *it < newRes; ++it);
 
     if (it != results.end() && newRes == *it)
     {
@@ -146,6 +141,7 @@ void Interpreter::insertionSort(std::string myWord,
         results.insert(it, newRes);
 }
 
+// Compute longest common subsequence
 int Interpreter::LCS(const std::string& str1, const std::string& str2,
         const size_t index, const size_t limit)
 {
@@ -164,6 +160,7 @@ int Interpreter::LCS(const std::string& str1, const std::string& str2,
                 ++res;
                 ++k;
             }
+
             if (res >= limit)
                 return res;
         }

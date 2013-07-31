@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cat testTime | time ./interpreter dico.bin > /dev/null
+cat testTime | time ../TextMiningApp ../dico.bin > /dev/null
 
 wc -l testTime

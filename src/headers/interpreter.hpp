@@ -12,7 +12,7 @@
 
 # include <list>
 
-# define BUFFER_SIZE 512
+# define BUFFER_SIZE 256
 
 class Result
 {
