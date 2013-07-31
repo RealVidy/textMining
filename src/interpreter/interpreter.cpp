@@ -56,12 +56,12 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
 
     curWord[index++] = n.c;
 
-    //std::cout << n.index << " " << n.freq<< std::endl;
+    //std::cerr << n.index << " " << n.freq << " " << n.length << std::endl;
 
     for (size_t i = 0; i < n.length; ++i)
         curWord[index++] = pSuffixes[n.index + i];
 
-    //    std::cerr << curWord.substr(0, index) << std::endl;
+    //std::cerr << curWord.substr(0, index) << std::endl;
     //std::cerr << "------------" << acu << " " << n.nbSons << std::endl;
     if (n.isWord)
     {
@@ -77,7 +77,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
                 tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
         {
-            std::cerr << tmp << " " << curWord.substr(0, index) << std::endl; 
+            // std::cerr << tmp << " " << curWord.substr(0, index) << std::endl; 
             return;
         }
     }
@@ -86,7 +86,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(word, curWord, index)) > maxDist &&
                 tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
         {
-            std::cerr << word << " " << curWord.substr(0, index) << std::endl; 
+            // std::cerr << word << " " << curWord.substr(0, index) << std::endl; 
             return;
         }
     }
@@ -141,6 +141,7 @@ void Interpreter::insertionSort(std::string myWord,
 {
     std::list<Result>::iterator it = results.begin();
     myWord.resize(index);
+    //std::cerr << myWord << std::endl;
     Result newRes(myWord, distance, freq);
 
     for (; it != results.end() && newRes != *it && *it < newRes; ++it);
@@ -164,10 +165,10 @@ void print_extract_data(Header* pHeader, char* pSuffixes,
     std::cout << "> Offset du trie: " << pHeader->trie_offset << std::endl;
 
     pSuffixes = pSuffixes;
-    //    std::cout << " -- SUFFIXES -- " << std::endl;
-    //    for (size_t i = 0; i < pHeader->nb_suffixes; i++)
-    //	std::cout << (pSuffixes[i]) << " ";
-    //    std::cout << std::endl;
+        std::cout << " -- SUFFIXES -- " << std::endl;
+        for (size_t i = 0; i < pHeader->nb_suffixes; i++)
+    	std::cout << (pSuffixes[i]) << " ";
+        std::cout << std::endl;
 
     std::cout << " -- NODES -- " << std::endl;
     int fact = 0;
