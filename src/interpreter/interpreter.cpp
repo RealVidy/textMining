@@ -5,7 +5,6 @@
 
 Interpreter::Interpreter(std::string file)
 {
-    std::cout << sizeof(unsigned int) << std::endl;
     std::cerr << "Loading begin" << std::endl;
     loadData(file);
     std::cerr << "Loading done" << std::endl;
@@ -24,7 +23,7 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
 
     //  std::cerr << " -> " << pNode[0].nbSons << std::endl << std::endl;
 
-    unsigned int acu = pNode[0].nbSons;
+    size_t acu = pNode[0].nbSons;
     for (int i = 0; i < pNode[0].nbSons; i++)
     {
         //	std::cerr << "-> " << pNode[pSons[i]].no << std::endl;
@@ -78,7 +77,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(tmp, curWord, index)) > maxDist && 
                 tmpDist - LCS(word.substr(0, index + 1), curWord, index, tmpDist - maxDist) > maxDist)
         {
-            //std::cerr << tmp << " " << curWord.substr(0, index) << std::endl; 
+            std::cerr << tmp << " " << curWord.substr(0, index) << std::endl; 
             return;
         }
     }
@@ -87,7 +86,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
         if ((tmpDist = distance(word, curWord, index)) > maxDist &&
                 tmpDist - LCS(word, curWord, index, tmpDist - maxDist) > maxDist)
         {
-            //std::cerr << word << " " << curWord.substr(0, index) << std::endl; 
+            std::cerr << word << " " << curWord.substr(0, index) << std::endl; 
             return;
         }
     }
@@ -156,7 +155,7 @@ void Interpreter::insertionSort(std::string myWord,
 }
 
 void print_extract_data(Header* pHeader, char* pSuffixes,
-        dataNode* pNode,size_t* pSons)
+        dataNode* pNode, int* pSons)
 {
     std::cout << " -- HEADER -- " << std::endl;
     std::cout << "> Nombre de suffixes: " << pHeader->nb_suffixes << std::endl;
@@ -245,8 +244,9 @@ void Interpreter::loadData(std::string filename)
     pSuffixes = (char*) (pFile + pHeader->suffixes_offset);
     pNode = (dataNode*) (pFile + pHeader->trie_offset);
     size_t padding = (pHeader->nb_suffixes % 4) == 0 ? 0 : 4 - (pHeader->nb_suffixes % 4);
-    pSons = (int*) (pFile + (int) sizeof(Header) + padding + (int) (pHeader->nb_suffixes * sizeof(char)) 
-		    + ((int) pHeader->nb_node * sizeof(dataNode)));
+    pSons = (int*) (pFile + sizeof(Header) + padding + 
+            pHeader->nb_suffixes * sizeof(char) + 
+            pHeader->nb_node * sizeof(dataNode));
 
-    //print_extract_data(pHeader, pSuffixes, pNode, pSons);
+    print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }

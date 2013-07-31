@@ -34,6 +34,9 @@ private:
     std::string filename;
 
 private:
+    void drawTree(Node * n);
+
+private:
     int add(std::string word, int freq, Node* n);
     Node* burstDown(size_t index, size_t i, size_t freq, Node* n);
     void browse(std::string word, Node* n);
@@ -51,7 +54,7 @@ public:
 
 private:
     // Each node          Vec of Sons   Sons numbers              no    Previous Node
-    std::vector<std::pair<std::vector<int>, std::pair<int, Node*>>> new_trie;
+    std::vector<std::pair<std::vector<int>, std::pair<unsigned int, Node*>>> new_trie;
     void deepthFirstSearch(Node *n, int father);
     void printVector();
 };

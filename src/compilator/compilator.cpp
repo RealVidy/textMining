@@ -149,7 +149,7 @@ void PatriciaTrie::deepthFirstSearch(Node* n, int father)
     if (n != root)
     {
         for (size_t i = 0; i < new_trie[father].first.size(); i++)
-            if (new_trie[father].first[i] == - 1)
+            if (new_trie[father].first[i] == -1)
             {
                 new_trie[father].first[i] = nodeNum;
                 break;
@@ -160,7 +160,7 @@ void PatriciaTrie::deepthFirstSearch(Node* n, int father)
         tmp.push_back(-2);
     else
         for (size_t i = 0; i < n->sons.size(); i++)
-            tmp.push_back(- 1);
+            tmp.push_back(-1);
 
 
     new_trie.push_back(std::make_pair(tmp, std::make_pair(nodeNum, n)));
@@ -224,7 +224,7 @@ void PatriciaTrie::compile(std::string filename)
 
     // Transform the patricia trie
     deepthFirstSearch(root, -1);
-
+    printVector();
     // Header
     IntOctets n;
 
@@ -285,9 +285,9 @@ void PatriciaTrie::compile(std::string filename)
         buff.push_back(n.a[0]);
         buff.push_back(n.a[1]);
         /*
-        buff.push_back(n.a[2]);
-        buff.push_back(n.a[3]);
-        */
+           buff.push_back(n.a[2]);
+           buff.push_back(n.a[3]);
+           */
         buff.push_back(new_trie[i].second.second->c);
 
         buff.push_back(new_trie[i].second.second->isWord);
@@ -303,8 +303,8 @@ void PatriciaTrie::compile(std::string filename)
             n.i = new_trie[i].first.size();
         buff.push_back(n.a[0]);
         buff.push_back(n.a[1]);
-	buff.push_back(n.a[2]);
-	buff.push_back(n.a[3]);
+        buff.push_back(n.a[2]);
+        buff.push_back(n.a[3]);
 
     }
 
@@ -334,4 +334,12 @@ void PatriciaTrie::compile(std::string filename)
 
     fclose(fichier);
     std::cout << "-- Compilation over" << std::endl;
+
+    drawTree(root);
+}
+
+int cc = 0;
+void PatriciaTrie::drawTree(Node* n)
+{
+    n = n;
 }
