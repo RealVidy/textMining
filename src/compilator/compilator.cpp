@@ -315,7 +315,6 @@ void PatriciaTrie::compile(std::string filename)
             if (new_trie[i].first[j] != 1001)
             {
                 n.i = new_trie[i].first[j];
-                std::cout << n.i << std::endl;
                 buff.push_back(n.a[0]);
                 buff.push_back(n.a[1]);
                 buff.push_back(n.a[2]);
