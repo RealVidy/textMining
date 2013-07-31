@@ -165,10 +165,10 @@ void print_extract_data(Header* pHeader, char* pSuffixes,
     std::cout << "> Offset du trie: " << pHeader->trie_offset << std::endl;
 
     pSuffixes = pSuffixes;
-    //    std::cout << " -- SUFFIXES -- " << std::endl;
-    //    for (size_t i = 0; i < pHeader->nb_suffixes; i++)
-    //	std::cout << (pSuffixes[i]) << " ";
-    //    std::cout << std::endl;
+        std::cout << " -- SUFFIXES -- " << std::endl;
+        for (size_t i = 0; i < pHeader->nb_suffixes; i++)
+    	std::cout << (pSuffixes[i]) << " ";
+        std::cout << std::endl;
 
     std::cout << " -- NODES -- " << std::endl;
     int fact = 0;
@@ -249,5 +249,5 @@ void Interpreter::loadData(std::string filename)
             pHeader->nb_suffixes * sizeof(char) + 
             pHeader->nb_node * sizeof(dataNode));
 
-    //print_extract_data(pHeader, pSuffixes, pNode, pSons);
+    print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }
