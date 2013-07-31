@@ -17,7 +17,6 @@
 # include <unistd.h>
 
 # include <assert.h>
-# include <zlib.h>
 # include <stdio.h>
 # include <fcntl.h>
 
@@ -27,37 +26,45 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 
-# include <boost/archive/binary_iarchive.hpp>
-# include <boost/archive/binary_oarchive.hpp>
-# include <boost/serialization/map.hpp>
-# include <boost/serialization/vector.hpp> 
+# define HEADER_SIZE (16)
 
 union IntOctets
 {
-    int i;
+    unsigned int i;
     char a[4];
 };
 
 union SizeTOctets
 {
-    size_t i;
+    unsigned int i;
     char a[4];
 };
 
 union ShortOctets
 {
-    short i;
+    unsigned short i;
     char a[2];
+};
+
+struct Header
+{
+    unsigned int nb_suffixes;
+    unsigned int suffixes_offset;
+    unsigned int nb_node;
+    unsigned int trie_offset;
 };
 
 struct dataNode
 {
-    size_t index;
-    size_t freq;
+    unsigned int no;
+    unsigned int index;
+    unsigned int freq;
     unsigned short length;
+    //char v1;
+    //char v2;
     char c;
     bool isWord;
-    size_t nbSons;
+    unsigned short nbSons;
 } __attribute__((packed));
 
 #endif

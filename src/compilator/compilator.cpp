@@ -30,7 +30,7 @@ Node::Node(void): index(0), freq(0), length(0), c(0), isWord(false)
 Node::~Node(void)
 {
     for (std::pair<char, Node*> s : this->sons)
-	delete(s.second);
+        delete(s.second);
 }
 
 void Node::print(void)
@@ -68,7 +68,8 @@ Node* PatriciaTrie::burstDown(size_t index, size_t i, size_t freq, Node* n)
 
     newNode = new Node(index, freq, i, n->c);
 
-    n->length -= i + 1;
+    int tmp = (int) n->length - i - 1;
+    n->length = (tmp < 0) ? 0 : tmp;
     n->c = c;
     n->index = index + i + 1;
 
@@ -112,6 +113,8 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
                 t->sons[firstC] = tmp;
 
             std::string leftOver = word.substr(i + 1, word.length() - i - 1);
+            if (leftOver.length() == 0)
+                t->sons[firstC]->isWord = true;
 
             if (leftOver.length() > 0) // Else we had a duplicate.
                 add(leftOver, freq, tmp);
@@ -119,27 +122,75 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
     }
     else // We create a leaf.
     {
-        t->sons[firstC] = new Node(suffixes.size(), freq, word.length() - 1,
+        t->sons[firstC] = new Node(suffixes.size(), freq, word.length() == 0 ? 0 : word.length() - 1,
                 firstC);
         t->sons[firstC]->isWord = true;
 
         // t->sons[firstC]->print();
 
         //std::cout << word << std::endl;
-        for (std::string::const_iterator it = word.begin() + 1; it != word.end(); ++it)
-        {
-            //std::cout << *it;
-            suffixes.push_back(*it);
-        }
+        if (word.begin() != word.end())
+            for (std::string::const_iterator it = word.begin() + 1; it != word.end(); ++it)
+            {
+                //std::cout << *it;
+                suffixes.push_back(*it);
+            }
         //std::cout << std::endl;
     }
 
     return 0;
 }
 
-int PatriciaTrie::compile(void)
+int nodeNum = 0;
+void PatriciaTrie::deepthFirstSearch(Node* n, int father)
 {
-    std::ifstream file(filename, std::ios::in);
+    std::vector<unsigned short> tmp;
+
+    if (n != root)
+    {
+        for (size_t i = 0; i < new_trie[father].first.size(); i++)
+            if (new_trie[father].first[i] == 1000)
+            {
+                new_trie[father].first[i] = nodeNum;
+                break;
+            }
+    }
+
+    if (n->sons.size() == 0)
+        tmp.push_back(1001);
+    else
+        for (size_t i = 0; i < n->sons.size(); i++)
+            tmp.push_back(1000);
+
+
+    new_trie.push_back(std::make_pair(tmp, std::make_pair(nodeNum, n)));
+
+    father = nodeNum;
+    nodeNum++;
+
+    tmp.clear();
+    for (std::map<char, Node*>::iterator it = n->sons.begin();
+            it != n->sons.end(); ++it)
+        deepthFirstSearch(it->second, father);
+
+}
+
+void PatriciaTrie::printVector()
+{
+    for (size_t i = 0; i < new_trie.size(); i++)
+    {
+        std::cout << "Node: " << new_trie[i].second.first << std::endl;
+        std::cout << "pNode: " << new_trie[i].second.second << std::endl;
+        std::cout << "Sons: ";
+        for (size_t j = 0; j < new_trie[i].first.size(); j++)
+            std::cout << new_trie[i].first[j] << " ";
+        std::cout << std::endl << std::endl;
+    }
+}
+
+void PatriciaTrie::compile(std::string filename)
+{
+    std::ifstream file(this->filename, std::ios::in);
 
     if (file)
     {
@@ -165,177 +216,120 @@ int PatriciaTrie::compile(void)
     else
     {
         std::cerr << "Error - Cannot open file: '" << filename;
-        std::cerr << "'" << std::cout;
-        return -1;
-    }
-    return 0;
-}
-
-/*
-int PatriciaTrie::compress(FILE* source, FILE* dest, int level)
-{
-    int ret, flush;
-    unsigned have;
-    z_stream strm;
-    unsigned char in[CHUNK];
-    unsigned char out[CHUNK];
-
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    ret = deflateInit(&strm, level);
-    if (ret != Z_OK)
-	return ret;
-
-    do {
-	strm.avail_in = fread(in, 1, CHUNK, source);
-	if (ferror(source))
-	{
-	    (void) deflateEnd(&strm);
-	    return Z_ERRNO;
-	}
-	flush = feof(source) ? Z_FINISH : Z_NO_FLUSH;
-	strm.next_in = in;
-	do {
-	    strm.avail_out = CHUNK;
-	    strm.next_out = out;
-	    ret = deflate(&strm, flush);
-	    assert(ret != Z_STREAM_ERROR);
-	    have = CHUNK - strm.avail_out;
-	    if (fwrite(out, 1, have, dest) != have || ferror(dest))
-	    {
-		(void) deflateEnd(&strm);
-		return Z_ERRNO;
-	    }
-	} while (strm.avail_out == 0);
-	assert(strm.avail_in == 0);
-    } while (flush != Z_FINISH);
-    assert(ret == Z_STREAM_END);
-
-    (void) deflateEnd(&strm);
-    return Z_OK;
-}
-*/
-
-int nodeNum = 0;
-void PatriciaTrie::deepthFirstSearch(Node* n, int father)
-{
-    std::vector<int> tmp;
-
-    if (n != root)
-    {
-	for (size_t i = 0; i < new_trie[father].first.size(); i++)
-	    if (new_trie[father].first[i] == -1)
-	    {
-		new_trie[father].first[i] = nodeNum;
-		break;
-	    }
+        std::cerr << "'" << std::endl;
+        exit(-1);
     }
 
-    if (n->sons.size() == 0)
-	tmp.push_back(-2);
-    else
-	for (size_t i = 0; i < n->sons.size(); i++)
-	    tmp.push_back(-1);
+    std::string buff;
 
-    new_trie.push_back(std::make_pair(tmp, std::make_pair(nodeNum, n)));
- 
-    father = nodeNum;
-    nodeNum++;
-
-    tmp.clear();
-    for (std::map<char, Node*>::iterator it = n->sons.begin();
-	 it != n->sons.end(); ++it)
-	deepthFirstSearch(it->second, father);
-
-}
-
-void PatriciaTrie::createRawFile(std::string filename)
-{
-    std::ofstream file(filename);
+    // Transform the patricia trie
+    deepthFirstSearch(root, -1);
 
     // Header
     IntOctets n;
     ShortOctets n2;
 
-    n.i = sizeof(char) * suffixes.size();
-    file << n.a[0];
-    file << n.a[1];
-    file << n.a[2];
-    file << n.a[3];
+    n.i = suffixes.size();
+    buff.push_back(n.a[0]);
+    buff.push_back(n.a[1]);
+    buff.push_back(n.a[2]);
+    buff.push_back(n.a[3]);
 
-    n.i = 12;
-    file << n.a[0];
-    file << n.a[1];
-    file << n.a[2];
-    file << n.a[3];
+    n.i = sizeof(Header);
+    buff.push_back(n.a[0]);
+    buff.push_back(n.a[1]);
+    buff.push_back(n.a[2]);
+    buff.push_back(n.a[3]);
 
-    n.i = 12 + sizeof(char) * suffixes.size();
-    file << n.a[0];
-    file << n.a[1];
-    file << n.a[2];
-    file << n.a[3];
+    n.i = new_trie.size();
+    buff.push_back(n.a[0]);
+    buff.push_back(n.a[1]);
+    buff.push_back(n.a[2]);
+    buff.push_back(n.a[3]);
+
+    n.i = sizeof(Header) + sizeof(char) * suffixes.size() +
+        (suffixes.size() % 4 == 0 ? 0 : (4 - (suffixes.size() % 4)));
+    buff.push_back(n.a[0]);
+    buff.push_back(n.a[1]);
+    buff.push_back(n.a[2]);
+    buff.push_back(n.a[3]);
 
     // Suffixes
     for (std::vector<char>::iterator it = suffixes.begin(); it != suffixes.end(); ++it)
-	file << *it;
+        buff.push_back(*it);
 
-    // Transform the patricia trie
-    deepthFirstSearch(root, -1);
-    
-    std::cout << new_trie[0].second.second->c << std::endl;
+    if (suffixes.size() % 4 != 0)
+        for (size_t i = 0; i < 4 - (suffixes.size() % 4); i++)
+            buff.push_back((char) 0);
 
     for (size_t i = 0; i < new_trie.size(); i++)
     {
-	n.i = new_trie[i].second.second->index;
-	file << n.a[0];
-	file << n.a[1];
-	file << n.a[2];
-	file << n.a[3];
+        n.i = new_trie[i].second.first;
+        buff.push_back(n.a[0]);
+        buff.push_back(n.a[1]);
+        buff.push_back(n.a[2]);
+        buff.push_back(n.a[3]);
 
-	n.i = new_trie[i].second.second->freq;
-	file << n.a[0];
-	file << n.a[1];
-	file << n.a[2];
-	file << n.a[3];
+        n.i = new_trie[i].second.second->index;
+        buff.push_back(n.a[0]);
+        buff.push_back(n.a[1]);
+        buff.push_back(n.a[2]);
+        buff.push_back(n.a[3]);
 
-	n.i = new_trie[i].second.second->length;
-	file << n.a[0];
-	file << n.a[1];
-	file << n.a[2];
-	file << n.a[3];
+        n.i = new_trie[i].second.second->freq;
+        buff.push_back(n.a[0]);
+        buff.push_back(n.a[1]);
+        buff.push_back(n.a[2]);
+        buff.push_back(n.a[3]);
 
-	file << new_trie[i].second.second->c;
+        n.i = new_trie[i].second.second->length;
+        buff.push_back(n.a[0]);
+        buff.push_back(n.a[1]);
+        /*
+        buff.push_back(n.a[2]);
+        buff.push_back(n.a[3]);
+        */
+        buff.push_back(new_trie[i].second.second->c);
 
-	file << new_trie[i].second.second->isWord;
+        buff.push_back(new_trie[i].second.second->isWord);
 
-	n2.i = new_trie[i].first.size();
-	file << n2.a[0];
-	file << n2.a[1];
-
-	for (size_t j = 0; j < new_trie[i].first.size(); j++)
-	    if (new_trie[i].first[j] != -2)
-	    {
-		n.i =  new_trie[i].first[j] * BLOCK_SIZE + sizeof(int) * new_trie[i].first.size();
-		file << n.a[0];
-		file << n.a[1];
-		file << n.a[2];
-		file << n.a[3];
-	    }
+        if (new_trie[i].first.size() == 1)
+        {
+            if (new_trie[i].first[0] == 1001)
+                n2.i = 0;
+            else
+                n2.i = 1;
+        }
+        else
+            n2.i = new_trie[i].first.size();
+        buff.push_back(n2.a[0]);
+        buff.push_back(n2.a[1]);
     }
 
-    file.close();
-/*
-    std::string name_compress = filename + "_compress";
- 
-    FILE* in = fopen(filename.c_str(), "r+");
-    FILE* out = fopen(name_compress.c_str(), "a+");
+    // for each node
+    for (size_t i = 0; i < new_trie.size(); i++)    
+        // Take each son
+        for (size_t j = 0; j < new_trie[i].first.size(); j++)
+        {
+            // ERROR HERE, 1001 is possible for a node
+            if (new_trie[i].first[j] != 1001)
+            {
+                n.i = new_trie[i].first[j];
+                std::cout << n.i << std::endl;
+                buff.push_back(n.a[0]);
+                buff.push_back(n.a[1]);
+                buff.push_back(n.a[2]);
+                buff.push_back(n.a[3]);
+            }
+        }   
 
-    compress(in, out, 1);
+    if (access(filename.c_str(), F_OK) != -1 )
+        remove(filename.c_str());
 
-    fclose(in);
-    fclose(out);
+    FILE * fichier = fopen(filename.c_str() , "a+");    
 
-    rename(name_compress.c_str(), filename.c_str());
-*/
+    fwrite(buff.c_str(), sizeof(char), buff.length(), fichier);
+
+    fclose(fichier);
+    std::cout << "-- Compilation over" << std::endl;
 }

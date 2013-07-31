@@ -1,7 +1,6 @@
 #ifndef INTERPRETER_HPP
 # define INTERPRETER_HPP
 
-# include "includes.hpp"
 # include "patriciatrie.hpp"
 
 # include <list>
@@ -41,14 +40,21 @@ class Result
 
 class Interpreter
 {
+private:
+    Header* pHeader;
+    char* pSuffixes;
+    dataNode* pNode;
+    unsigned int* pSons;
+
     public:
     Interpreter(std::string file);
+    ~Interpreter(){};
     void getResults(const unsigned short distance, const std::string word);
 
     private:
     void insertionSort(const std::string word, const unsigned short distance,
             const size_t freq, const size_t index);
-    void getWord(const Node* n, std::string& curWord, size_t index);
+    void getWord(const dataNode& n, std::string& curWord, size_t index, size_t& acu);
     int distance(const std::string& truncWord, const std::string& curWord, const size_t index);
     int LCS(const std::string& str1, const std::string& str2,
             const size_t index, const size_t limit);

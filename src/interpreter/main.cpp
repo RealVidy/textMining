@@ -24,8 +24,6 @@ int main(int argc, char** argv)
 
     Interpreter* inter = new Interpreter(file);
 
-//    inter->loadData(file);
-
     //ProfilerStart("myProf.prof");
     
     while (std::cin >> drop >> distance >> word)
