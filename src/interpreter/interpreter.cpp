@@ -141,14 +141,14 @@ int Interpreter::distance(const std::string& truncWord, const std::string& curWo
     return result;
 }
 
-void Interpreter::insertionSort(std::string word,
+void Interpreter::insertionSort(std::string myWord,
         const unsigned short distance, const size_t freq, const size_t index)
 {
     std::list<Result>::iterator it = results.begin();
-    word.resize(index);
-    Result newRes(word, distance, freq);
+    myWord.resize(index);
+    Result newRes(myWord, distance, freq);
 
-    for (; newRes != *it && *it < newRes && it != results.end(); ++it);
+    for (; it != results.end() && newRes != *it && *it < newRes; ++it);
 
     if (it != results.end() && newRes == *it)
     {
