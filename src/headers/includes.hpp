@@ -14,6 +14,8 @@
 # include <map>
 # include <bitset>
 
+# include <climits>
+
 # include <unistd.h>
 
 # include <assert.h>
@@ -64,7 +66,7 @@ struct dataNode
     //char v2;
     char c;
     bool isWord;
-    unsigned short nbSons;
+    int nbSons;
 } __attribute__((packed));
 
 #endif

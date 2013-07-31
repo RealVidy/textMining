@@ -44,7 +44,7 @@ private:
     Header* pHeader;
     char* pSuffixes;
     dataNode* pNode;
-    unsigned int* pSons;
+    int* pSons;
 
     public:
     Interpreter(std::string file);

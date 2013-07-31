@@ -144,12 +144,12 @@ int PatriciaTrie::add(std::string word, int freq, Node* t)
 int nodeNum = 0;
 void PatriciaTrie::deepthFirstSearch(Node* n, int father)
 {
-    std::vector<unsigned short> tmp;
+    std::vector<int> tmp;
 
     if (n != root)
     {
         for (size_t i = 0; i < new_trie[father].first.size(); i++)
-            if (new_trie[father].first[i] == 1000)
+            if (new_trie[father].first[i] == -1)
             {
                 new_trie[father].first[i] = nodeNum;
                 break;
@@ -157,10 +157,10 @@ void PatriciaTrie::deepthFirstSearch(Node* n, int father)
     }
 
     if (n->sons.size() == 0)
-        tmp.push_back(1001);
+        tmp.push_back(-2);
     else
         for (size_t i = 0; i < n->sons.size(); i++)
-            tmp.push_back(1000);
+            tmp.push_back(-1);
 
 
     new_trie.push_back(std::make_pair(tmp, std::make_pair(nodeNum, n)));
@@ -227,7 +227,6 @@ void PatriciaTrie::compile(std::string filename)
 
     // Header
     IntOctets n;
-    ShortOctets n2;
 
     n.i = suffixes.size();
     buff.push_back(n.a[0]);
@@ -286,24 +285,27 @@ void PatriciaTrie::compile(std::string filename)
         buff.push_back(n.a[0]);
         buff.push_back(n.a[1]);
         /*
-        buff.push_back(n.a[2]);
-        buff.push_back(n.a[3]);
-        */
+           buff.push_back(n.a[2]);
+           buff.push_back(n.a[3]);
+           */
         buff.push_back(new_trie[i].second.second->c);
 
         buff.push_back(new_trie[i].second.second->isWord);
 
         if (new_trie[i].first.size() == 1)
         {
-            if (new_trie[i].first[0] == 1001)
-                n2.i = 0;
+            if (new_trie[i].first[0] == (-2))
+                n.i = 0;
             else
-                n2.i = 1;
+                n.i = 1;
         }
         else
-            n2.i = new_trie[i].first.size();
-        buff.push_back(n2.a[0]);
-        buff.push_back(n2.a[1]);
+            n.i = new_trie[i].first.size();
+        buff.push_back(n.a[0]);
+        buff.push_back(n.a[1]);
+        buff.push_back(n.a[2]);
+        buff.push_back(n.a[3]);
+
     }
 
     // for each node
@@ -312,9 +314,10 @@ void PatriciaTrie::compile(std::string filename)
         for (size_t j = 0; j < new_trie[i].first.size(); j++)
         {
             // ERROR HERE, 1001 is possible for a node
-            if (new_trie[i].first[j] != 1001)
+            if (new_trie[i].first[j] != (-2))
             {
                 n.i = new_trie[i].first[j];
+                //std::cout << n.i << std::endl;
                 buff.push_back(n.a[0]);
                 buff.push_back(n.a[1]);
                 buff.push_back(n.a[2]);
