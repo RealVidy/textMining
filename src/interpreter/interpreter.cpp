@@ -5,6 +5,7 @@
 
 Interpreter::Interpreter(std::string file)
 {
+    std::cout << sizeof(unsigned int) << std::endl;
     std::cerr << "Loading begin" << std::endl;
     loadData(file);
     std::cerr << "Loading done" << std::endl;
@@ -23,8 +24,8 @@ void Interpreter::getResults(const unsigned short dist, const std::string word)
 
     //  std::cerr << " -> " << pNode[0].nbSons << std::endl << std::endl;
 
-    size_t acu = pNode[0].nbSons;
-    for (size_t i = 0; i < pNode[0].nbSons; i++)
+    unsigned int acu = pNode[0].nbSons;
+    for (int i = 0; i < pNode[0].nbSons; i++)
     {
         //	std::cerr << "-> " << pNode[pSons[i]].no << std::endl;
         //	std::cerr << "-> " << pNode[pSons[i]].length << std::endl;
@@ -56,7 +57,8 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
 
     curWord[index++] = n.c;
 
-    std::cout << n.index << " " << std::endl;
+    //std::cout << n.index << " " << n.freq<< std::endl;
+
     for (size_t i = 0; i < n.length; ++i)
         curWord[index++] = pSuffixes[n.index + i];
 
@@ -94,7 +96,7 @@ void Interpreter::getWord(const dataNode& n, std::string& curWord, size_t index,
 
     size_t tmp = acu;
     acu += n.nbSons;
-    for (size_t i = 0; i < n.nbSons; i++)
+    for (int i = 0; i < n.nbSons; i++)
     {
         //std::cerr << pSons[i + tmp] << " =? " << pNode[pSons[i + tmp]].no << std::endl;
         getWord(pNode[pSons[i + tmp]], curWord, index, acu);
@@ -181,7 +183,7 @@ void print_extract_data(Header* pHeader, char* pSuffixes,
         std::cout << ">> Nombre de fils: " << pNode[i].nbSons << std::endl;
 
         std::cout << ">> Sons: ";
-        for (size_t j = 0; j < pNode[i].nbSons; j++)
+        for (int j = 0; j < pNode[i].nbSons; j++)
             std::cout << pSons[fact + j] << " ";
         fact += pNode[i].nbSons;
         std::cout << std::endl << std::endl;;
@@ -247,5 +249,5 @@ void Interpreter::loadData(std::string filename)
             pHeader->nb_suffixes * sizeof(char) + 
             pHeader->nb_node * sizeof(dataNode));
 
-    //print_extract_data(pHeader, pSuffixes, pNode, pSons);
+    print_extract_data(pHeader, pSuffixes, pNode, pSons);
 }

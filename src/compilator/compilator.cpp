@@ -227,7 +227,6 @@ void PatriciaTrie::compile(std::string filename)
 
     // Header
     IntOctets n;
-    ShortOctets n2;
 
     n.i = suffixes.size();
     buff.push_back(n.a[0]);
@@ -296,14 +295,17 @@ void PatriciaTrie::compile(std::string filename)
         if (new_trie[i].first.size() == 1)
         {
             if (new_trie[i].first[0] == (-2))
-                n2.i = 0;
+                n.i = 0;
             else
-                n2.i = 1;
+                n.i = 1;
         }
         else
-            n2.i = new_trie[i].first.size();
-        buff.push_back(n2.a[0]);
-        buff.push_back(n2.a[1]);
+            n.i = new_trie[i].first.size();
+        buff.push_back(n.a[0]);
+        buff.push_back(n.a[1]);
+	buff.push_back(n.a[2]);
+	buff.push_back(n.a[3]);
+
     }
 
     // for each node
@@ -312,7 +314,7 @@ void PatriciaTrie::compile(std::string filename)
         for (size_t j = 0; j < new_trie[i].first.size(); j++)
         {
             // ERROR HERE, 1001 is possible for a node
-            if (new_trie[i].first[j] != (INT_MAX - 1))
+            if (new_trie[i].first[j] != (-2))
             {
                 n.i = new_trie[i].first[j];
                 //std::cout << n.i << std::endl;
