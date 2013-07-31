@@ -3,6 +3,38 @@ textMining
 
 Spellchecker with Damerau–Levenshtein distance
 
+Ce projet a été réaliser en C++2011 (utilisation de G++). Pour sa compilattion,
+il suffit de suivre la procédure suivante:
+
+./configure && make
+
+Des commandes suplémentaires ont été ajouté au Makefile:
+    -> clean
+    -> distclean
+    -> doc
+
+L'usage des ces deux outils est simple. Il faut fournir un fichier text (dico)
+sous la forme suivante au compilateur.
+
+     word1 10 <- ce chiffre correspond à la fréquence du mot
+     word2 20
+     ...
+
+                 /!\ Attention /!\
+Il ne doit pas y avoir des lignes vide dans le fichier.
+
+Le compilateur va donc générer un fichier binaire qui est votre dico sous une
+autre forme (Patricia Trie compilé).
+
+Usage pour le compilateur: ./TextMiningCompiler file_in file_ou
+
+Une fois cette première étape réalisé, pour calculer les distances voulus par
+rapport à un mot, il suffit d'appeler le second applicatif.
+
+Usage pour l'interpréteur:
+      Test unitaire ->  echo "approx 2 mot" | ./TextMiningApp file_in (dico compilé)
+      Tests multiples -> cat testFile | ./TextMiningApp file_in (dico compilé)
+
 Questions:
 ==========
 
